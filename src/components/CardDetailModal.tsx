@@ -1,15 +1,14 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Star, Package, Sparkles, TrendingUp, TrendingDown, Minus, Plus } from "lucide-react";
-import { PriceHistoryChart } from "./PriceHistoryChart";
-import { useState } from "react";
-import { useCart } from "./CartContext";
-import { motion } from "motion/react";
-import type { Card } from "../types/product.types";
-import { PRICE_VARIANCE, CARD_SIZES } from "../constants";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Star, Package, Sparkles, TrendingUp, TrendingDown, Minus, Plus } from 'lucide-react';
+import { PriceHistoryChart } from './PriceHistoryChart';
+import { useState } from 'react';
+import { useCart } from './CartContext';
+import type { Card } from '../types/product.types';
+import { PRICE_VARIANCE, CARD_SIZES } from '../constants';
 
 interface Review {
   id: string;
@@ -35,10 +34,11 @@ const generatePriceHistory = (currentPrice: number) => {
 
   for (let i = 0; i < dates.length; i++) {
     const variance = Math.random() * PRICE_VARIANCE.RANGE - PRICE_VARIANCE.OFFSET;
-    const price = basePrice + (currentPrice - basePrice) * (i / (dates.length - 1)) + (currentPrice * variance);
+    const price =
+      basePrice + (currentPrice - basePrice) * (i / (dates.length - 1)) + currentPrice * variance;
     data.push({
       date: dates[i],
-      price: Math.max(price, currentPrice * PRICE_VARIANCE.MIN_FACTOR)
+      price: Math.max(price, currentPrice * PRICE_VARIANCE.MIN_FACTOR),
     });
   }
 
@@ -48,29 +48,29 @@ const generatePriceHistory = (currentPrice: number) => {
 // Mock reviews
 const MOCK_REVIEWS: Review[] = [
   {
-    id: "1",
-    userName: "CardCollector99",
+    id: '1',
+    userName: 'CardCollector99',
     rating: 5,
-    date: "2025-10-10",
-    comment: "Card arrived in perfect condition, exactly as described. Fast shipping!",
-    verified: true
+    date: '2025-10-10',
+    comment: 'Card arrived in perfect condition, exactly as described. Fast shipping!',
+    verified: true,
   },
   {
-    id: "2",
-    userName: "MagicPlayer42",
+    id: '2',
+    userName: 'MagicPlayer42',
     rating: 4,
-    date: "2025-10-08",
-    comment: "Great seller, card was well protected. Slightly slower shipping than expected.",
-    verified: true
+    date: '2025-10-08',
+    comment: 'Great seller, card was well protected. Slightly slower shipping than expected.',
+    verified: true,
   },
   {
-    id: "3",
-    userName: "TCGEnthusiast",
+    id: '3',
+    userName: 'TCGEnthusiast',
     rating: 5,
-    date: "2025-10-05",
-    comment: "Excellent communication and packaging. Will buy from again!",
-    verified: true
-  }
+    date: '2025-10-05',
+    comment: 'Excellent communication and packaging. Will buy from again!',
+    verified: true,
+  },
 ];
 
 export function CardDetailModal({ card, open, onOpenChange, onViewSeller }: CardDetailModalProps) {
@@ -85,22 +85,22 @@ export function CardDetailModal({ card, open, onOpenChange, onViewSeller }: Card
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(price);
   };
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case "Mythic Rare":
-        return "bg-orange-500 text-white";
-      case "Rare":
-        return "bg-yellow-500 text-black";
-      case "Uncommon":
-        return "bg-gray-400 text-black";
-      case "Special":
-        return "bg-orange-500 text-white";
+      case 'Mythic Rare':
+        return 'bg-orange-500 text-white';
+      case 'Rare':
+        return 'bg-yellow-500 text-black';
+      case 'Uncommon':
+        return 'bg-gray-400 text-black';
+      case 'Special':
+        return 'bg-orange-500 text-white';
       default:
-        return "bg-gray-300 text-black";
+        return 'bg-gray-300 text-black';
     }
   };
 
@@ -122,19 +122,24 @@ export function CardDetailModal({ card, open, onOpenChange, onViewSeller }: Card
         <div className="grid md:grid-cols-2 gap-6">
           {/* Left: Image */}
           <div className="space-y-4">
-            <div className="rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 relative" style={{ aspectRatio: CARD_SIZES.PRODUCT_ASPECT_RATIO }}>
+            <div
+              className="rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 relative"
+              style={{ aspectRatio: CARD_SIZES.PRODUCT_ASPECT_RATIO }}
+            >
               <ImageWithFallback
                 src={card.image}
                 alt={card.name}
                 className="w-full h-full object-cover"
               />
-              {card.finish === "Foil" && (
+              {card.finish === 'Foil' && (
                 <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-1.5 rounded-md flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   <span>Foil</span>
                 </div>
               )}
-              <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-md ${getRarityColor(card.rarity)}`}>
+              <div
+                className={`absolute top-4 left-4 px-3 py-1.5 rounded-md ${getRarityColor(card.rarity)}`}
+              >
                 {card.rarity}
               </div>
             </div>
@@ -153,8 +158,9 @@ export function CardDetailModal({ card, open, onOpenChange, onViewSeller }: Card
                   ) : (
                     <TrendingDown className="w-4 h-4 text-red-600" />
                   )}
-                  <span className={priceChange >= 0 ? "text-green-600" : "text-red-600"}>
-                    {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(1)}%
+                  <span className={priceChange >= 0 ? 'text-green-600' : 'text-red-600'}>
+                    {priceChange >= 0 ? '+' : ''}
+                    {priceChange.toFixed(1)}%
                   </span>
                 </div>
               </div>
@@ -262,9 +268,7 @@ export function CardDetailModal({ card, open, onOpenChange, onViewSeller }: Card
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                           <span>{card.sellerRating}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          (324 reviews)
-                        </span>
+                        <span className="text-xs text-muted-foreground">(324 reviews)</span>
                       </div>
                     </div>
                     <Button size="sm" onClick={() => onViewSeller(card.seller)}>
@@ -286,7 +290,7 @@ export function CardDetailModal({ card, open, onOpenChange, onViewSeller }: Card
                 <div>
                   <h4 className="mb-3">Recent Reviews</h4>
                   <div className="space-y-3">
-                    {MOCK_REVIEWS.map((review) => (
+                    {MOCK_REVIEWS.map(review => (
                       <div key={review.id} className="border rounded-lg p-3 space-y-2">
                         <div className="flex items-start justify-between">
                           <div>

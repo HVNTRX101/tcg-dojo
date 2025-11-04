@@ -47,11 +47,11 @@ export const GIFT_CARD = {
 // ============================================================================
 
 export const ANIMATION_DURATION = {
-  FAST: 0.2,      // Quick interactions (hovers, taps)
-  NORMAL: 0.3,    // Standard animations (filters, modals)
-  SLOW: 0.6,      // Hero/entrance animations
-  EXTENDED: 1.5,  // Long animations (hero section)
-  INFINITE: 8,    // Infinite loop durations (background animations)
+  FAST: 0.2, // Quick interactions (hovers, taps)
+  NORMAL: 0.3, // Standard animations (filters, modals)
+  SLOW: 0.6, // Hero/entrance animations
+  EXTENDED: 1.5, // Long animations (hero section)
+  INFINITE: 8, // Infinite loop durations (background animations)
   TICKER_SCROLL: 40,
   TICKER_SCALE: 2,
 } as const;
@@ -79,15 +79,15 @@ export const MOTION_Y_OFFSET = {
 // ============================================================================
 
 export const CACHE_STALE_TIME = {
-  SEARCH_RESULTS: 2 * 60 * 1000,    // 2 minutes
-  LISTINGS: 2 * 60 * 1000,          // 2 minutes
-  PRODUCT_LIST: 5 * 60 * 1000,      // 5 minutes
-  PRODUCT_DETAIL: 10 * 60 * 1000,   // 10 minutes
+  SEARCH_RESULTS: 2 * 60 * 1000, // 2 minutes
+  LISTINGS: 2 * 60 * 1000, // 2 minutes
+  PRODUCT_LIST: 5 * 60 * 1000, // 5 minutes
+  PRODUCT_DETAIL: 10 * 60 * 1000, // 10 minutes
   RELATED_PRODUCTS: 15 * 60 * 1000, // 15 minutes
-  PRICE_HISTORY: 30 * 60 * 1000,    // 30 minutes
-  GAME_DATA: 30 * 60 * 1000,        // 30 minutes
-  GAMES: 60 * 60 * 1000,            // 1 hour
-  SETS: 60 * 60 * 1000,             // 1 hour
+  PRICE_HISTORY: 30 * 60 * 1000, // 30 minutes
+  GAME_DATA: 30 * 60 * 1000, // 30 minutes
+  GAMES: 60 * 60 * 1000, // 1 hour
+  SETS: 60 * 60 * 1000, // 1 hour
 } as const;
 
 // ============================================================================
@@ -112,10 +112,10 @@ export const PRODUCT_LIMITS = {
 } as const;
 
 export const PRICE_VARIANCE = {
-  RANGE: 0.3,           // 30% max variation
-  OFFSET: 0.15,         // Center offset
-  MIN_FACTOR: 0.7,      // Minimum price factor for variance
-  BASE_FACTOR: 0.8,     // Base price factor for calculations
+  RANGE: 0.3, // 30% max variation
+  OFFSET: 0.15, // Center offset
+  MIN_FACTOR: 0.7, // Minimum price factor for variance
+  BASE_FACTOR: 0.8, // Base price factor for calculations
 } as const;
 
 // ============================================================================
@@ -124,25 +124,25 @@ export const PRICE_VARIANCE = {
 
 export const CARD_SIZES = {
   PRODUCT_ASPECT_RATIO: '3/4',
-  CART_DRAWER_IMAGE_WIDTH: 80,   // px
+  CART_DRAWER_IMAGE_WIDTH: 80, // px
   CART_DRAWER_IMAGE_HEIGHT: 112, // px
-  CART_PAGE_IMAGE_SIZE: 80,      // px (square)
+  CART_PAGE_IMAGE_SIZE: 80, // px (square)
 } as const;
 
 export const SIDEBAR_CONFIG = {
-  WIDTH: 280,              // px
+  WIDTH: 280, // px
   ANIMATION_DURATION: 0.3, // seconds
-  ANIMATION_OFFSET: -280,  // px
+  ANIMATION_OFFSET: -280, // px
 } as const;
 
 export const LAYOUT_SPACING = {
-  CHART_HEIGHT: 300,       // px
-  STICKY_TOP_OFFSET: 8,    // px
+  CHART_HEIGHT: 300, // px
+  STICKY_TOP_OFFSET: 8, // px
 } as const;
 
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 
-export type AnimationDuration = typeof ANIMATION_DURATION[keyof typeof ANIMATION_DURATION];
-export type CacheStaleTime = typeof CACHE_STALE_TIME[keyof typeof CACHE_STALE_TIME];
+export type AnimationDuration = (typeof ANIMATION_DURATION)[keyof typeof ANIMATION_DURATION];
+export type CacheStaleTime = (typeof CACHE_STALE_TIME)[keyof typeof CACHE_STALE_TIME];

@@ -22,7 +22,7 @@ export function HeroSection({ cards }: HeroSectionProps) {
         <motion.div
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: ANIMATION_DURATION.EXTENDED, ease: "easeOut" }}
+          transition={{ duration: ANIMATION_DURATION.EXTENDED, ease: 'easeOut' }}
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb2tlbW9uJTIwY2FyZHMlMjBjb2xsZWN0aW9ufGVufDF8fHx8MTc2MDcxMDYwOHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral')`,
@@ -38,7 +38,7 @@ export function HeroSection({ cards }: HeroSectionProps) {
           transition={{
             duration: ANIMATION_DURATION.INFINITE,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: 'easeInOut',
           }}
           className="absolute inset-0 bg-gradient-to-br from-orange-600/10 via-transparent to-red-600/10 dark:from-orange-600/20 dark:to-red-600/20"
         />
@@ -72,7 +72,8 @@ export function HeroSection({ cards }: HeroSectionProps) {
             transition={{ delay: ANIMATION_DELAY.STAGGER_3, duration: ANIMATION_DURATION.SLOW }}
             className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto"
           >
-            Join thousands of collectors buying and selling cards from Magic: The Gathering, Pokémon, Yu-Gi-Oh! and more. Trusted marketplace with verified sellers.
+            Join thousands of collectors buying and selling cards from Magic: The Gathering,
+            Pokémon, Yu-Gi-Oh! and more. Trusted marketplace with verified sellers.
           </motion.p>
 
           <motion.div
@@ -81,10 +82,17 @@ export function HeroSection({ cards }: HeroSectionProps) {
             transition={{ delay: ANIMATION_DELAY.STAGGER_4, duration: ANIMATION_DURATION.SLOW }}
             className="flex flex-wrap justify-center gap-4 mb-8"
           >
-            <Button size="lg" className="bg-white text-orange-600 hover:bg-white/90 dark:bg-[#E85002] dark:text-white dark:hover:bg-[#F16001] shadow-lg">
+            <Button
+              size="lg"
+              className="bg-white text-orange-600 hover:bg-white/90 dark:bg-[#E85002] dark:text-white dark:hover:bg-[#F16001] shadow-lg"
+            >
               Start Collecting
             </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20 backdrop-blur-sm">
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-white/10 text-white border-white/30 hover:bg-white/20 backdrop-blur-sm"
+            >
               Browse Cards
             </Button>
           </motion.div>

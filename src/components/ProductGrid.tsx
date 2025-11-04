@@ -1,8 +1,8 @@
-import { ProductCard } from "./ProductCard";
-import { Pagination } from "./Pagination";
-import type { Card } from "../types/product.types";
-import { useState } from "react";
-import { ITEMS_PER_PAGE } from "../constants";
+import { ProductCard } from './ProductCard';
+import { Pagination } from './Pagination';
+import type { Card } from '../types/product.types';
+import { useState } from 'react';
+import { ITEMS_PER_PAGE } from '../constants';
 
 interface ProductGridProps {
   products: Card[];
@@ -16,7 +16,9 @@ export function ProductGrid({ products, onViewDetails }: ProductGridProps) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">No cards found matching your criteria.</p>
-        <p className="text-sm text-muted-foreground mt-2">Try adjusting your filters or search terms.</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Try adjusting your filters or search terms.
+        </p>
       </div>
     );
   }
@@ -36,14 +38,10 @@ export function ProductGrid({ products, onViewDetails }: ProductGridProps) {
       <div className="mb-4 text-sm text-gray-600">
         Showing {startIndex + 1}-{Math.min(endIndex, products.length)} of {products.length} results
       </div>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {currentProducts.map((product) => (
-          <ProductCard 
-            key={product.id} 
-            product={product} 
-            onViewDetails={onViewDetails}
-          />
+        {currentProducts.map(product => (
+          <ProductCard key={product.id} product={product} onViewDetails={onViewDetails} />
         ))}
       </div>
 

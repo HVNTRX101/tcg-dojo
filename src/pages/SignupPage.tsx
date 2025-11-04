@@ -8,7 +8,7 @@ import { Checkbox } from '../components/ui/checkbox';
 import { Separator } from '../components/ui/separator';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { useSignup } from '../hooks/useAuth';
 
 export default function SignupPage() {
@@ -74,7 +74,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -114,9 +114,7 @@ export default function SignupPage() {
               <div className="flex-1" />
             </div>
             <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-            <p className="text-muted-foreground">
-              Join our TCG marketplace community
-            </p>
+            <p className="text-muted-foreground">Join our TCG marketplace community</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -131,7 +129,7 @@ export default function SignupPage() {
                       type="text"
                       placeholder="John"
                       value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      onChange={e => handleInputChange('firstName', e.target.value)}
                       className={`pl-10 ${errors.firstName ? 'border-red-500' : ''}`}
                     />
                   </div>
@@ -148,7 +146,7 @@ export default function SignupPage() {
                       type="text"
                       placeholder="Doe"
                       value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      onChange={e => handleInputChange('lastName', e.target.value)}
                       className={`pl-10 ${errors.lastName ? 'border-red-500' : ''}`}
                     />
                   </div>
@@ -168,13 +166,11 @@ export default function SignupPage() {
                     type="email"
                     placeholder="john@example.com"
                     value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onChange={e => handleInputChange('email', e.target.value)}
                     className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-sm text-red-500 mt-1">{errors.email}</p>
-                )}
+                {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
               </div>
 
               {/* Password */}
@@ -187,7 +183,7 @@ export default function SignupPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Create a strong password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onChange={e => handleInputChange('password', e.target.value)}
                     className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
                   />
                   <Button
@@ -197,16 +193,10 @@ export default function SignupPage() {
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
-                {errors.password && (
-                  <p className="text-sm text-red-500 mt-1">{errors.password}</p>
-                )}
+                {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
               </div>
 
               {/* Confirm Password */}
@@ -219,7 +209,7 @@ export default function SignupPage() {
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                    onChange={e => handleInputChange('confirmPassword', e.target.value)}
                     className={`pl-10 pr-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
                   />
                   <Button
@@ -247,7 +237,9 @@ export default function SignupPage() {
                   <Checkbox
                     id="agreeToTerms"
                     checked={formData.agreeToTerms}
-                    onCheckedChange={(checked) => handleInputChange('agreeToTerms', checked as boolean)}
+                    onCheckedChange={checked =>
+                      handleInputChange('agreeToTerms', checked as boolean)
+                    }
                     className="mt-1"
                   />
                   <Label htmlFor="agreeToTerms" className="text-sm">
@@ -269,7 +261,7 @@ export default function SignupPage() {
                   <Checkbox
                     id="newsletter"
                     checked={formData.newsletter}
-                    onCheckedChange={(checked) => handleInputChange('newsletter', checked as boolean)}
+                    onCheckedChange={checked => handleInputChange('newsletter', checked as boolean)}
                   />
                   <Label htmlFor="newsletter" className="text-sm">
                     Subscribe to our newsletter for updates and special offers

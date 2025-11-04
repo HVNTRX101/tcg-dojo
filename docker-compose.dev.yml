@@ -1,0 +1,98 @@
+version: '3.8'
+
+# Development docker-compose with hot-reload and debug capabilities
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: tcg-marketplace-postgres-dev
+    environment:
+      POSTGRES_DB: tcg_marketplace_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./backend/prisma/backup:/backup
+    ports:
+      - "5432:5432"
+    networks:
+      - tcg-network-dev
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: tcg-marketplace-redis-dev
+    command: redis-server --requirepass redis123 --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data_dev:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - tcg-network-dev
+
+  # Backend API (Development mode with hot-reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: tcg-marketplace-backend-dev
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tcg_marketplace_dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redis123
+      JWT_SECRET: dev-secret-key-change-in-production
+      JWT_REFRESH_SECRET: dev-refresh-secret-key-change-in-production
+      FRONTEND_URL: http://localhost:5173
+      LOG_LEVEL: debug
+      LOG_DB_QUERIES: true
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - ./backend/logs:/app/logs
+      - ./backend/uploads:/app/uploads
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js debugger
+    command: npm run dev
+    networks:
+      - tcg-network-dev
+
+  # Frontend (Vite development server)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: tcg-marketplace-frontend-dev
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host
+    networks:
+      - tcg-network-dev
+
+networks:
+  tcg-network-dev:
+    driver: bridge
+
+volumes:
+  postgres_data_dev:
+    driver: local
+  redis_data_dev:
+    driver: local

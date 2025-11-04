@@ -1,0 +1,33 @@
+# Development Dockerfile with hot-reload
+
+FROM node:20-alpine
+
+# Install development tools
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    git
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install ALL dependencies (including dev)
+RUN npm install && \
+    npm cache clean --force
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Copy source code
+COPY . .
+
+# Expose port and debugger port
+EXPOSE 3000 9229
+
+# Start with nodemon for hot-reload and inspector for debugging
+CMD ["npm", "run", "dev"]

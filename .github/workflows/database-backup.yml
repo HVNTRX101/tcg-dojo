@@ -1,0 +1,88 @@
+name: Database Backup
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Backup Database
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create backup timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Create database backup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /opt/tcg-marketplace
+            mkdir -p backups
+            docker-compose exec -T postgres pg_dump -U postgres \
+              -F c -b -v -f /backup/backup_${{ steps.timestamp.outputs.TIMESTAMP }}.dump \
+              tcg_marketplace
+
+      - name: Compress backup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /opt/tcg-marketplace/backend/prisma/backup
+            gzip backup_${{ steps.timestamp.outputs.TIMESTAMP }}.dump
+
+      - name: Upload to S3
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            aws s3 cp \
+              /opt/tcg-marketplace/backend/prisma/backup/backup_${{ steps.timestamp.outputs.TIMESTAMP }}.dump.gz \
+              s3://${{ secrets.BACKUP_S3_BUCKET }}/database/backup_${{ steps.timestamp.outputs.TIMESTAMP }}.dump.gz \
+              --storage-class GLACIER
+
+      - name: Clean old local backups (keep last 7 days)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            find /opt/tcg-marketplace/backend/prisma/backup -name "backup_*.dump.gz" -mtime +7 -delete
+
+      - name: Verify backup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            aws s3 ls s3://${{ secrets.BACKUP_S3_BUCKET }}/database/backup_${{ steps.timestamp.outputs.TIMESTAMP }}.dump.gz
+
+      - name: Notify on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Database backup failed!'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Notify on success
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Database backup completed successfully!'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}

@@ -4,10 +4,10 @@ export interface Product {
   name: string;
   set: string;
   cardNumber: string;
-  rarity: "Common" | "Uncommon" | "Rare" | "Mythic Rare" | "Special";
+  rarity: 'Common' | 'Uncommon' | 'Rare' | 'Mythic Rare' | 'Special';
   price: number;
-  condition: "Near Mint" | "Lightly Played" | "Moderately Played" | "Heavily Played" | "Damaged";
-  finish: "Normal" | "Foil";
+  condition: 'Near Mint' | 'Lightly Played' | 'Moderately Played' | 'Heavily Played' | 'Damaged';
+  finish: 'Normal' | 'Foil';
   image: string;
   seller: string;
   sellerRating: number;

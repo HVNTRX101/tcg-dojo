@@ -58,7 +58,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     }
   }
 
-
   resetErrorBoundary = () => {
     this.setState({
       hasError: false,
@@ -107,9 +106,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     <p className="text-sm font-semibold text-red-800 mb-2">
                       Error Details (Development Only):
                     </p>
-                    <p className="text-sm font-mono text-gray-800 mb-2">
-                      {error.toString()}
-                    </p>
+                    <p className="text-sm font-mono text-gray-800 mb-2">{error.toString()}</p>
                     {error.stack && (
                       <pre className="text-xs text-gray-600 overflow-auto max-h-40">
                         {error.stack}
@@ -139,11 +136,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     Reload Page
                   </Button>
                   {level === 'route' && (
-                    <Button
-                      onClick={this.handleGoHome}
-                      variant="outline"
-                      size="sm"
-                    >
+                    <Button onClick={this.handleGoHome} variant="outline" size="sm">
                       <Home className="w-4 h-4 mr-2" />
                       Go Home
                     </Button>
@@ -171,7 +164,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           </h1>
 
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            We encountered an unexpected error. Don't worry, we've logged this issue and will look into it.
+            We encountered an unexpected error. Don&apos;t worry, we&apos;ve logged this issue and
+            will look into it.
           </p>
 
           {error && (
@@ -179,9 +173,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Error Message:
               </p>
-              <p className="text-sm font-mono text-gray-700 dark:text-gray-300">
-                {error.message}
-              </p>
+              <p className="text-sm font-mono text-gray-700 dark:text-gray-300">{error.message}</p>
               {isDevelopment && error.stack && (
                 <details className="mt-3">
                   <summary className="text-xs font-semibold text-gray-600 dark:text-gray-400 cursor-pointer">
@@ -196,17 +188,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           )}
 
           <div className="flex gap-4 justify-center">
-            <Button
-              onClick={this.handleGoHome}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
+            <Button onClick={this.handleGoHome} className="bg-blue-600 hover:bg-blue-700">
               <Home className="w-4 h-4 mr-2" />
               Go to Homepage
             </Button>
-            <Button
-              onClick={() => window.location.reload()}
-              variant="outline"
-            >
+            <Button onClick={() => window.location.reload()} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
               Try Again
             </Button>

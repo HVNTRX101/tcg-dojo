@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { collectionService, CollectionItem, CollectionStats, CollectionFilters } from '../services/collection.service';
+import { collectionService, CollectionFilters } from '../services/collection.service';
 
 // Query keys
 export const collectionKeys = {
@@ -43,7 +43,7 @@ export const useWishlist = () => {
 // Mutations
 export const useAddToCollection = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ productId, data }: { productId: string; data?: any }) =>
       collectionService.addToCollection(productId, data),
@@ -51,7 +51,7 @@ export const useAddToCollection = () => {
       // Invalidate collection queries to refetch
       queryClient.invalidateQueries({ queryKey: collectionKeys.all });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Add to collection failed:', error);
     },
   });
@@ -59,7 +59,7 @@ export const useAddToCollection = () => {
 
 export const useUpdateCollectionItem = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ itemId, data }: { itemId: string; data: any }) =>
       collectionService.updateCollectionItem(itemId, data),
@@ -67,7 +67,7 @@ export const useUpdateCollectionItem = () => {
       // Invalidate collection queries to refetch
       queryClient.invalidateQueries({ queryKey: collectionKeys.all });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Update collection item failed:', error);
     },
   });
@@ -75,14 +75,14 @@ export const useUpdateCollectionItem = () => {
 
 export const useRemoveFromCollection = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (itemId: string) => collectionService.removeFromCollection(itemId),
     onSuccess: () => {
       // Invalidate collection queries to refetch
       queryClient.invalidateQueries({ queryKey: collectionKeys.all });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Remove from collection failed:', error);
     },
   });
@@ -90,14 +90,14 @@ export const useRemoveFromCollection = () => {
 
 export const useAddToWishlist = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (productId: string) => collectionService.addToWishlist(productId),
     onSuccess: () => {
       // Invalidate wishlist queries to refetch
       queryClient.invalidateQueries({ queryKey: collectionKeys.wishlist() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Add to wishlist failed:', error);
     },
   });
@@ -105,14 +105,14 @@ export const useAddToWishlist = () => {
 
 export const useRemoveFromWishlist = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (productId: string) => collectionService.removeFromWishlist(productId),
     onSuccess: () => {
       // Invalidate wishlist queries to refetch
       queryClient.invalidateQueries({ queryKey: collectionKeys.wishlist() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Remove from wishlist failed:', error);
     },
   });
@@ -121,7 +121,7 @@ export const useRemoveFromWishlist = () => {
 export const useExportCollection = () => {
   return useMutation({
     mutationFn: (format: 'csv' | 'json' = 'csv') => collectionService.exportCollection(format),
-    onError: (error) => {
+    onError: error => {
       console.error('Export collection failed:', error);
     },
   });
@@ -129,14 +129,14 @@ export const useExportCollection = () => {
 
 export const useImportCollection = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (file: File) => collectionService.importCollection(file),
     onSuccess: () => {
       // Invalidate collection queries to refetch
       queryClient.invalidateQueries({ queryKey: collectionKeys.all });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Import collection failed:', error);
     },
   });
@@ -146,7 +146,7 @@ export const useImportCollection = () => {
 export const useCollectionState = (filters: CollectionFilters = {}) => {
   const { data: collection, isLoading, error } = useCollection(filters);
   const { data: stats } = useCollectionStats();
-  
+
   return {
     collection,
     stats,

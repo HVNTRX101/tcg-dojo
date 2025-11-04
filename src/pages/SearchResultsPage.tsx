@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SearchAndFilter } from '../components/SearchAndFilter';
 import { ProductGrid } from '../components/ProductGrid';
@@ -8,19 +8,18 @@ import { Button } from '../components/ui/button';
 import { SlidersHorizontal, X, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Product } from '../types/product.types';
-import { useProductSearch } from '../hooks/useProducts';
 import { MOCK_CARDS } from '../mocks/products';
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-  const [selectedGame, setSelectedGame] = useState("all");
-  const [selectedSet, setSelectedSet] = useState("all");
-  const [selectedRarity, setSelectedRarity] = useState("all");
-  const [selectedCondition, setSelectedCondition] = useState("all");
-  const [selectedFinish, setSelectedFinish] = useState("all");
+  const [selectedGame, setSelectedGame] = useState('all');
+  const [selectedSet, setSelectedSet] = useState('all');
+  const [selectedRarity, setSelectedRarity] = useState('all');
+  const [selectedCondition, setSelectedCondition] = useState('all');
+  const [selectedFinish, setSelectedFinish] = useState('all');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState('name');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Get unique filter options
@@ -34,32 +33,40 @@ export default function SearchResultsPage() {
 
   // Filter and sort cards based on search query and filters
   const filteredAndSortedCards = MOCK_CARDS.filter(card => {
-    const matchesSearch = query === '' || 
+    const matchesSearch =
+      query === '' ||
       card.name.toLowerCase().includes(query.toLowerCase()) ||
       card.set.toLowerCase().includes(query.toLowerCase()) ||
       card.seller.toLowerCase().includes(query.toLowerCase());
-    const matchesGame = selectedGame === "all" || card.game === selectedGame;
-    const matchesSet = selectedSet === "all" || card.set === selectedSet;
-    const matchesRarity = selectedRarity === "all" || card.rarity === selectedRarity;
-    const matchesCondition = selectedCondition === "all" || card.condition === selectedCondition;
-    const matchesFinish = selectedFinish === "all" || card.finish === selectedFinish;
+    const matchesGame = selectedGame === 'all' || card.game === selectedGame;
+    const matchesSet = selectedSet === 'all' || card.set === selectedSet;
+    const matchesRarity = selectedRarity === 'all' || card.rarity === selectedRarity;
+    const matchesCondition = selectedCondition === 'all' || card.condition === selectedCondition;
+    const matchesFinish = selectedFinish === 'all' || card.finish === selectedFinish;
     const matchesPrice = card.price >= priceRange[0] && card.price <= priceRange[1];
-    
-    return matchesSearch && matchesGame && matchesSet && matchesRarity && 
-           matchesCondition && matchesFinish && matchesPrice;
+
+    return (
+      matchesSearch &&
+      matchesGame &&
+      matchesSet &&
+      matchesRarity &&
+      matchesCondition &&
+      matchesFinish &&
+      matchesPrice
+    );
   }).sort((a, b) => {
     switch (sortBy) {
-      case "name":
+      case 'name':
         return a.name.localeCompare(b.name);
-      case "name-desc":
+      case 'name-desc':
         return b.name.localeCompare(a.name);
-      case "price":
+      case 'price':
         return a.price - b.price;
-      case "price-desc":
+      case 'price-desc':
         return b.price - a.price;
-      case "set":
+      case 'set':
         return a.set.localeCompare(b.set);
-      case "rarity":
+      case 'rarity':
         return a.rarity.localeCompare(b.rarity);
       default:
         return 0;
@@ -81,7 +88,7 @@ export default function SearchResultsPage() {
               initial={{ opacity: 0, x: -280, width: 0 }}
               animate={{ opacity: 1, x: 0, width: 280 }}
               exit={{ opacity: 0, x: -280, width: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
               className="hidden lg:block flex-shrink-0 overflow-hidden"
             >
               <FilterSidebar
@@ -108,7 +115,7 @@ export default function SearchResultsPage() {
           {/* Filter Toggle Button */}
           <div className="mb-6">
             <Button
-              variant={isSidebarOpen ? "default" : "outline"}
+              variant={isSidebarOpen ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="gap-2 dark:neon-border transition-all duration-300 hidden lg:flex"
@@ -126,14 +133,9 @@ export default function SearchResultsPage() {
               )}
             </Button>
           </div>
-          
-          <Breadcrumbs 
-            items={[
-              { label: 'Products', href: '/' },
-              { label: 'Search Results' }
-            ]}
-          />
-          
+
+          <Breadcrumbs items={[{ label: 'Products', href: '/' }, { label: 'Search Results' }]} />
+
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
               <Search className="h-6 w-6 text-muted-foreground" />
@@ -142,7 +144,8 @@ export default function SearchResultsPage() {
               </h1>
             </div>
             <p className="text-muted-foreground">
-              {filteredAndSortedCards.length} {filteredAndSortedCards.length === 1 ? 'result' : 'results'} found
+              {filteredAndSortedCards.length}{' '}
+              {filteredAndSortedCards.length === 1 ? 'result' : 'results'} found
             </p>
           </div>
 
@@ -177,17 +180,12 @@ export default function SearchResultsPage() {
               <Search className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold mb-2">No results found</h3>
               <p className="text-muted-foreground mb-6">
-                Try adjusting your search terms or filters to find what you're looking for.
+                Try adjusting your search terms or filters to find what you&apos;re looking for.
               </p>
-              <Button onClick={() => window.location.href = '/'}>
-                Browse All Products
-              </Button>
+              <Button onClick={() => (window.location.href = '/')}>Browse All Products</Button>
             </div>
           ) : (
-            <ProductGrid 
-              products={filteredAndSortedCards} 
-              onViewDetails={handleViewDetails}
-            />
+            <ProductGrid products={filteredAndSortedCards} onViewDetails={handleViewDetails} />
           )}
         </main>
       </div>

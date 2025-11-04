@@ -5,7 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import { Checkbox } from '../components/ui/checkbox';
 import { Separator } from '../components/ui/separator';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
@@ -15,7 +21,7 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner@2.0.3';
 
 export default function CheckoutPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { cartItems, getCartTotal, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -32,13 +38,13 @@ export default function CheckoutPage() {
     state: '',
     zipCode: '',
     country: 'US',
-    
+
     // Payment Information
     cardNumber: '',
     expiryDate: '',
     cvv: '',
     cardName: '',
-    
+
     // Additional Options
     saveAddress: false,
     newsletter: false,
@@ -63,10 +69,10 @@ export default function CheckoutPage() {
 
     setIsProcessing(false);
     setOrderComplete(true);
-    
+
     // Clear cart after successful order
     clearCart();
-    
+
     toast.success('Order placed successfully!');
   };
 
@@ -93,11 +99,7 @@ export default function CheckoutPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto text-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
             <CheckCircle className="h-24 w-24 mx-auto text-green-500 mb-6" />
           </motion.div>
           <h1 className="text-3xl font-bold mb-4">Order Confirmed!</h1>
@@ -109,7 +111,9 @@ export default function CheckoutPage() {
               <Button size="lg">Continue Shopping</Button>
             </Link>
             <Link to="/account">
-              <Button variant="outline" size="lg">View Orders</Button>
+              <Button variant="outline" size="lg">
+                View Orders
+              </Button>
             </Link>
           </div>
         </div>
@@ -150,7 +154,7 @@ export default function CheckoutPage() {
                       <Input
                         id="firstName"
                         value={formData.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        onChange={e => handleInputChange('firstName', e.target.value)}
                         required
                       />
                     </div>
@@ -159,12 +163,12 @@ export default function CheckoutPage() {
                       <Input
                         id="lastName"
                         value={formData.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        onChange={e => handleInputChange('lastName', e.target.value)}
                         required
                       />
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="email">Email *</Label>
@@ -172,7 +176,7 @@ export default function CheckoutPage() {
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        onChange={e => handleInputChange('email', e.target.value)}
                         required
                       />
                     </div>
@@ -182,7 +186,7 @@ export default function CheckoutPage() {
                         id="phone"
                         type="tel"
                         value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        onChange={e => handleInputChange('phone', e.target.value)}
                       />
                     </div>
                   </div>
@@ -192,7 +196,7 @@ export default function CheckoutPage() {
                     <Input
                       id="address"
                       value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
+                      onChange={e => handleInputChange('address', e.target.value)}
                       required
                     />
                   </div>
@@ -203,13 +207,16 @@ export default function CheckoutPage() {
                       <Input
                         id="city"
                         value={formData.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
+                        onChange={e => handleInputChange('city', e.target.value)}
                         required
                       />
                     </div>
                     <div>
                       <Label htmlFor="state">State *</Label>
-                      <Select value={formData.state} onValueChange={(value) => handleInputChange('state', value)}>
+                      <Select
+                        value={formData.state}
+                        onValueChange={value => handleInputChange('state', value)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select state" />
                         </SelectTrigger>
@@ -227,7 +234,7 @@ export default function CheckoutPage() {
                       <Input
                         id="zipCode"
                         value={formData.zipCode}
-                        onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                        onChange={e => handleInputChange('zipCode', e.target.value)}
                         required
                       />
                     </div>
@@ -237,7 +244,9 @@ export default function CheckoutPage() {
                     <Checkbox
                       id="saveAddress"
                       checked={formData.saveAddress}
-                      onCheckedChange={(checked) => handleInputChange('saveAddress', checked as boolean)}
+                      onCheckedChange={checked =>
+                        handleInputChange('saveAddress', checked as boolean)
+                      }
                     />
                     <Label htmlFor="saveAddress">Save this address for future orders</Label>
                   </div>
@@ -258,7 +267,7 @@ export default function CheckoutPage() {
                     <Input
                       id="cardName"
                       value={formData.cardName}
-                      onChange={(e) => handleInputChange('cardName', e.target.value)}
+                      onChange={e => handleInputChange('cardName', e.target.value)}
                       required
                     />
                   </div>
@@ -269,7 +278,7 @@ export default function CheckoutPage() {
                       id="cardNumber"
                       placeholder="1234 5678 9012 3456"
                       value={formData.cardNumber}
-                      onChange={(e) => handleInputChange('cardNumber', e.target.value)}
+                      onChange={e => handleInputChange('cardNumber', e.target.value)}
                       required
                     />
                   </div>
@@ -281,7 +290,7 @@ export default function CheckoutPage() {
                         id="expiryDate"
                         placeholder="MM/YY"
                         value={formData.expiryDate}
-                        onChange={(e) => handleInputChange('expiryDate', e.target.value)}
+                        onChange={e => handleInputChange('expiryDate', e.target.value)}
                         required
                       />
                     </div>
@@ -291,7 +300,7 @@ export default function CheckoutPage() {
                         id="cvv"
                         placeholder="123"
                         value={formData.cvv}
-                        onChange={(e) => handleInputChange('cvv', e.target.value)}
+                        onChange={e => handleInputChange('cvv', e.target.value)}
                         required
                       />
                     </div>
@@ -316,7 +325,7 @@ export default function CheckoutPage() {
                       id="giftMessage"
                       placeholder="Add a special message..."
                       value={formData.giftMessage}
-                      onChange={(e) => handleInputChange('giftMessage', e.target.value)}
+                      onChange={e => handleInputChange('giftMessage', e.target.value)}
                     />
                   </div>
 
@@ -324,9 +333,13 @@ export default function CheckoutPage() {
                     <Checkbox
                       id="newsletter"
                       checked={formData.newsletter}
-                      onCheckedChange={(checked) => handleInputChange('newsletter', checked as boolean)}
+                      onCheckedChange={checked =>
+                        handleInputChange('newsletter', checked as boolean)
+                      }
                     />
-                    <Label htmlFor="newsletter">Subscribe to our newsletter for updates and special offers</Label>
+                    <Label htmlFor="newsletter">
+                      Subscribe to our newsletter for updates and special offers
+                    </Label>
                   </div>
                 </CardContent>
               </Card>
@@ -341,7 +354,7 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-4">
                   {/* Cart Items */}
                   <div className="space-y-3">
-                    {cartItems.map((item) => (
+                    {cartItems.map(item => (
                       <div key={item.id} className="flex gap-3">
                         <ImageWithFallback
                           src={item.image}
@@ -352,7 +365,9 @@ export default function CheckoutPage() {
                           <p className="font-medium text-sm truncate">{item.name}</p>
                           <p className="text-xs text-muted-foreground">Qty: {item.cartQuantity}</p>
                         </div>
-                        <p className="text-sm font-medium">${(item.price * item.cartQuantity).toFixed(2)}</p>
+                        <p className="text-sm font-medium">
+                          ${(item.price * item.cartQuantity).toFixed(2)}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -383,12 +398,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Place Order Button */}
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    size="lg"
-                    disabled={isProcessing}
-                  >
+                  <Button type="submit" className="w-full" size="lg" disabled={isProcessing}>
                     {isProcessing ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

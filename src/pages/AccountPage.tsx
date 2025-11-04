@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
-import { Package, FileText, Shield, MessageSquare, Book, CreditCard, Star, MapPin, DollarSign, Mail, ExternalLink, X } from 'lucide-react';
+import {
+  Package,
+  FileText,
+  Shield,
+  MessageSquare,
+  Book,
+  CreditCard,
+  Star,
+  MapPin,
+  DollarSign,
+  Mail,
+  ExternalLink,
+  X,
+} from 'lucide-react';
 
 interface AccountPageProps {
   onClose?: () => void;
@@ -37,7 +50,7 @@ export function AccountPage({ onClose }: AccountPageProps = {}) {
                 <h2>Account Home</h2>
               </div>
               <nav className="p-2">
-                {menuItems.map((item) => {
+                {menuItems.map(item => {
                   const Icon = item.icon;
                   return (
                     <button
@@ -65,11 +78,11 @@ export function AccountPage({ onClose }: AccountPageProps = {}) {
               </div>
               <h3 className="text-blue-900 mb-2">BUILT ON TRUST</h3>
               <div className="text-xs text-gray-600 mb-4">
-                TCGPLAYER<br />PARTNERSHIP
+                TCGPLAYER
+                <br />
+                PARTNERSHIP
               </div>
-              <p className="text-xs text-gray-500">
-                Trusted marketplace for trading card games
-              </p>
+              <p className="text-xs text-gray-500">Trusted marketplace for trading card games</p>
             </div>
 
             {/* Feedback Section */}
@@ -92,7 +105,7 @@ export function AccountPage({ onClose }: AccountPageProps = {}) {
                   </div>
                 </div>
                 {onClose && (
-                  <button 
+                  <button
                     onClick={onClose}
                     className="text-gray-400 hover:text-gray-600"
                     aria-label="Close"
@@ -110,9 +123,7 @@ export function AccountPage({ onClose }: AccountPageProps = {}) {
                       <Package className="w-16 h-16 text-gray-300" />
                     </div>
                     <h3 className="text-green-600 mb-2">Look Up an Order</h3>
-                    <p className="text-sm text-gray-600">
-                      Click here to view your order history
-                    </p>
+                    <p className="text-sm text-gray-600">Click here to view your order history</p>
                   </div>
 
                   {/* Sell with TCGplayer Card */}

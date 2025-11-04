@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Drop Alert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #EF4444;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background-color: #f9fafb;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 40px;
+            background-color: #EF4444;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .price-box {
+            background-color: #FEF2F2;
+            border-left: 4px solid #EF4444;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: #9CA3AF;
+            font-size: 18px;
+        }
+        .new-price {
+            color: #EF4444;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .savings {
+            color: #10B981;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔥 Price Drop Alert!</h1>
+    </div>
+
+    <div class="content">
+        <p>Hi {{userName}},</p>
+
+        <p>Great news! A product on your wishlist just dropped in price:</p>
+
+        <h2 style="text-align: center;">{{productName}}</h2>
+
+        <div class="price-box">
+            {{#if oldPrice}}
+            <p class="old-price">Was: ${{oldPrice}}</p>
+            {{/if}}
+            <p class="new-price">Now: ${{newPrice}}</p>
+            {{#if percentageOff}}
+            <p class="savings">Save {{percentageOff}}%!</p>
+            {{/if}}
+        </div>
+
+        <center>
+            <a href="{{actionUrl}}" class="button">Buy Now</a>
+        </center>
+
+        <p style="text-align: center; color: #6B7280; font-size: 14px;">Don't miss out - prices can change at any time!</p>
+
+        <div class="footer">
+            <p>You're receiving this email because you've enabled price drop notifications.</p>
+            <p><a href="{{actionUrl}}" style="color: #EF4444;">Manage your notification preferences</a></p>
+            <p>&copy; {{year}} TCG Marketplace. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

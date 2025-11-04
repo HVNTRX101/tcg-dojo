@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ApiError, ApiErrorResponse } from '../types/api.types';
+import { ApiError } from '../types/api.types';
 import { logApiError, sanitizeErrorData } from '../utils/errorLogging';
 
 // Validate required environment variables
@@ -23,14 +23,14 @@ const api: AxiosInstance = axios.create({
 // SECURITY WARNING: localStorage is vulnerable to XSS attacks.
 // For production, consider using HttpOnly cookies for token storage.
 api.interceptors.request.use(
-  (config) => {
+  config => {
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
@@ -40,7 +40,7 @@ api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
-  (error) => {
+  error => {
     // Extract error details
     const status = error.response?.status;
     const endpoint = error.config?.url || 'unknown';
@@ -64,20 +64,15 @@ api.interceptors.response.use(
     };
 
     // Log API error with context
-    logApiError(
-      new Error(apiError.message),
-      endpoint,
-      method,
-      {
-        statusCode: status,
-        requestData: sanitizeErrorData(error.config?.data),
-        responseData: sanitizeErrorData(error.response?.data),
-        metadata: {
-          code: apiError.code,
-          baseURL: error.config?.baseURL,
-        },
-      }
-    );
+    logApiError(new Error(apiError.message), endpoint, method, {
+      statusCode: status,
+      requestData: sanitizeErrorData(error.config?.data),
+      responseData: sanitizeErrorData(error.response?.data),
+      metadata: {
+        code: apiError.code,
+        baseURL: error.config?.baseURL,
+      },
+    });
 
     return Promise.reject(apiError);
   }
@@ -86,19 +81,19 @@ api.interceptors.response.use(
 // Generic API methods
 export const apiClient = {
   get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
-    api.get(url, config).then((response) => response.data),
-    
+    api.get(url, config).then(response => response.data),
+
   post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
-    api.post(url, data, config).then((response) => response.data),
-    
+    api.post(url, data, config).then(response => response.data),
+
   put: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
-    api.put(url, data, config).then((response) => response.data),
-    
+    api.put(url, data, config).then(response => response.data),
+
   patch: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
-    api.patch(url, data, config).then((response) => response.data),
-    
+    api.patch(url, data, config).then(response => response.data),
+
   delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
-    api.delete(url, config).then((response) => response.data),
+    api.delete(url, config).then(response => response.data),
 };
 
 // Auth token management

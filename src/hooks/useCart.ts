@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cartService } from '../services/cart.service';
-import { Cart, AddToCartRequest, UpdateCartItemRequest, CartSummary } from '../types/cart.types';
+import { AddToCartRequest, UpdateCartItemRequest } from '../types/cart.types';
 
 // Query keys
 export const cartKeys = {
@@ -35,7 +35,7 @@ export const useCartSummary = () => {
 // Mutations
 export const useAddToCart = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (request: AddToCartRequest) => cartService.addToCart(request),
     onSuccess: () => {
@@ -43,7 +43,7 @@ export const useAddToCart = () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });
       queryClient.invalidateQueries({ queryKey: cartKeys.summary() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Add to cart failed:', error);
     },
   });
@@ -51,7 +51,7 @@ export const useAddToCart = () => {
 
 export const useUpdateCartItem = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (request: UpdateCartItemRequest) => cartService.updateCartItem(request),
     onSuccess: () => {
@@ -59,7 +59,7 @@ export const useUpdateCartItem = () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });
       queryClient.invalidateQueries({ queryKey: cartKeys.summary() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Update cart item failed:', error);
     },
   });
@@ -67,7 +67,7 @@ export const useUpdateCartItem = () => {
 
 export const useRemoveFromCart = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (itemId: string) => cartService.removeFromCart(itemId),
     onSuccess: () => {
@@ -75,7 +75,7 @@ export const useRemoveFromCart = () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });
       queryClient.invalidateQueries({ queryKey: cartKeys.summary() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Remove from cart failed:', error);
     },
   });
@@ -83,7 +83,7 @@ export const useRemoveFromCart = () => {
 
 export const useClearCart = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: () => cartService.clearCart(),
     onSuccess: () => {
@@ -91,7 +91,7 @@ export const useClearCart = () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });
       queryClient.invalidateQueries({ queryKey: cartKeys.summary() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Clear cart failed:', error);
     },
   });
@@ -99,7 +99,7 @@ export const useClearCart = () => {
 
 export const useApplyCoupon = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (code: string) => cartService.applyCoupon(code),
     onSuccess: () => {
@@ -107,7 +107,7 @@ export const useApplyCoupon = () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });
       queryClient.invalidateQueries({ queryKey: cartKeys.summary() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Apply coupon failed:', error);
     },
   });
@@ -115,7 +115,7 @@ export const useApplyCoupon = () => {
 
 export const useRemoveCoupon = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: () => cartService.removeCoupon(),
     onSuccess: () => {
@@ -123,7 +123,7 @@ export const useRemoveCoupon = () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });
       queryClient.invalidateQueries({ queryKey: cartKeys.summary() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Remove coupon failed:', error);
     },
   });
@@ -131,7 +131,7 @@ export const useRemoveCoupon = () => {
 
 export const useSyncCart = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (localCartItems: any[]) => cartService.syncCart(localCartItems),
     onSuccess: () => {
@@ -139,7 +139,7 @@ export const useSyncCart = () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });
       queryClient.invalidateQueries({ queryKey: cartKeys.summary() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Sync cart failed:', error);
     },
   });
@@ -149,7 +149,7 @@ export const useSyncCart = () => {
 export const useCartState = () => {
   const { data: cart, isLoading, error } = useCart();
   const { data: summary } = useCartSummary();
-  
+
   return {
     cart,
     summary,

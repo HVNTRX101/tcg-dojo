@@ -1,11 +1,18 @@
-import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Button } from "./ui/button";
-import { Slider } from "./ui/slider";
-import { Search, SlidersHorizontal, X } from "lucide-react";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Label } from "./ui/label";
-import { useState } from "react";
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Button } from './ui/button';
+import { Slider } from './ui/slider';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
+import { Label } from './ui/label';
+import { useState } from 'react';
 
 interface SearchAndFilterProps {
   searchTerm: string;
@@ -50,20 +57,25 @@ export function SearchAndFilter({
   onPriceRangeChange,
   sortBy,
   onSortChange,
-  filterOptions
+  filterOptions,
 }: SearchAndFilterProps) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const hasActiveFilters = selectedGame !== "all" || selectedSet !== "all" || 
-                          selectedRarity !== "all" || selectedCondition !== "all" || 
-                          selectedFinish !== "all" || priceRange[0] !== 0 || priceRange[1] !== 20000;
+  const hasActiveFilters =
+    selectedGame !== 'all' ||
+    selectedSet !== 'all' ||
+    selectedRarity !== 'all' ||
+    selectedCondition !== 'all' ||
+    selectedFinish !== 'all' ||
+    priceRange[0] !== 0 ||
+    priceRange[1] !== 20000;
 
   const clearAllFilters = () => {
-    onGameChange("all");
-    onSetChange("all");
-    onRarityChange("all");
-    onConditionChange("all");
-    onFinishChange("all");
+    onGameChange('all');
+    onSetChange('all');
+    onRarityChange('all');
+    onConditionChange('all');
+    onFinishChange('all');
     onPriceRangeChange([0, 20000]);
   };
 
@@ -76,11 +88,11 @@ export function SearchAndFilter({
           <Input
             placeholder="Search cards, sets, or sellers..."
             value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={e => onSearchChange(e.target.value)}
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex gap-2">
           <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
             <SheetTrigger asChild>
@@ -97,11 +109,9 @@ export function SearchAndFilter({
             <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Filter Cards</SheetTitle>
-                <SheetDescription>
-                  Refine your search by selecting filters below
-                </SheetDescription>
+                <SheetDescription>Refine your search by selecting filters below</SheetDescription>
               </SheetHeader>
-              
+
               <div className="mt-6 space-y-6">
                 {/* Game Filter */}
                 <div className="space-y-2">
@@ -112,7 +122,7 @@ export function SearchAndFilter({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Games</SelectItem>
-                      {filterOptions.games.map((game) => (
+                      {filterOptions.games.map(game => (
                         <SelectItem key={game} value={game}>
                           {game}
                         </SelectItem>
@@ -130,7 +140,7 @@ export function SearchAndFilter({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Sets</SelectItem>
-                      {filterOptions.sets.map((set) => (
+                      {filterOptions.sets.map(set => (
                         <SelectItem key={set} value={set}>
                           {set}
                         </SelectItem>
@@ -148,7 +158,7 @@ export function SearchAndFilter({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Rarities</SelectItem>
-                      {filterOptions.rarities.map((rarity) => (
+                      {filterOptions.rarities.map(rarity => (
                         <SelectItem key={rarity} value={rarity}>
                           {rarity}
                         </SelectItem>
@@ -166,7 +176,7 @@ export function SearchAndFilter({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Conditions</SelectItem>
-                      {filterOptions.conditions.map((condition) => (
+                      {filterOptions.conditions.map(condition => (
                         <SelectItem key={condition} value={condition}>
                           {condition}
                         </SelectItem>
@@ -184,7 +194,7 @@ export function SearchAndFilter({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Finishes</SelectItem>
-                      {filterOptions.finishes.map((finish) => (
+                      {filterOptions.finishes.map(finish => (
                         <SelectItem key={finish} value={finish}>
                           {finish}
                         </SelectItem>
@@ -210,11 +220,7 @@ export function SearchAndFilter({
 
                 {/* Clear Filters */}
                 {hasActiveFilters && (
-                  <Button
-                    variant="outline"
-                    onClick={clearAllFilters}
-                    className="w-full gap-2"
-                  >
+                  <Button variant="outline" onClick={clearAllFilters} className="w-full gap-2">
                     <X className="w-4 h-4" />
                     Clear All Filters
                   </Button>
@@ -243,55 +249,55 @@ export function SearchAndFilter({
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2 items-center">
           <span className="text-sm text-muted-foreground">Active filters:</span>
-          {selectedGame !== "all" && (
+          {selectedGame !== 'all' && (
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => onGameChange("all")}
+              onClick={() => onGameChange('all')}
               className="gap-1 h-7 text-xs"
             >
               {selectedGame}
               <X className="w-3 h-3" />
             </Button>
           )}
-          {selectedSet !== "all" && (
+          {selectedSet !== 'all' && (
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => onSetChange("all")}
+              onClick={() => onSetChange('all')}
               className="gap-1 h-7 text-xs"
             >
               {selectedSet}
               <X className="w-3 h-3" />
             </Button>
           )}
-          {selectedRarity !== "all" && (
+          {selectedRarity !== 'all' && (
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => onRarityChange("all")}
+              onClick={() => onRarityChange('all')}
               className="gap-1 h-7 text-xs"
             >
               {selectedRarity}
               <X className="w-3 h-3" />
             </Button>
           )}
-          {selectedCondition !== "all" && (
+          {selectedCondition !== 'all' && (
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => onConditionChange("all")}
+              onClick={() => onConditionChange('all')}
               className="gap-1 h-7 text-xs"
             >
               {selectedCondition}
               <X className="w-3 h-3" />
             </Button>
           )}
-          {selectedFinish !== "all" && (
+          {selectedFinish !== 'all' && (
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => onFinishChange("all")}
+              onClick={() => onFinishChange('all')}
               className="gap-1 h-7 text-xs"
             >
               {selectedFinish}

@@ -13,7 +13,8 @@ import { motion } from 'motion/react';
 import { SHIPPING, TAX_RATE, ANIMATION_DURATION, CARD_SIZES, LAYOUT_SPACING } from '../constants';
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, getCartTotal, getCartCount, clearCart } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, getCartTotal, getCartCount, clearCart } =
+    useCart();
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
@@ -48,7 +49,7 @@ export default function CartPage() {
           <ShoppingCart className="h-24 w-24 mx-auto text-muted-foreground mb-6" />
           <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
           <p className="text-muted-foreground mb-8">
-            Looks like you haven't added any items to your cart yet.
+            Looks like you haven&apos;t added any items to your cart yet.
           </p>
           <Link to="/">
             <Button size="lg" className="gap-2">
@@ -83,7 +84,7 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
+            {cartItems.map(item => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -100,7 +101,10 @@ export default function CartPage() {
                           src={item.image}
                           alt={item.name}
                           className="rounded-lg object-cover"
-                          style={{ width: CARD_SIZES.CART_PAGE_IMAGE_SIZE, height: CARD_SIZES.CART_PAGE_IMAGE_SIZE }}
+                          style={{
+                            width: CARD_SIZES.CART_PAGE_IMAGE_SIZE,
+                            height: CARD_SIZES.CART_PAGE_IMAGE_SIZE,
+                          }}
                         />
                       </div>
 
@@ -189,7 +193,7 @@ export default function CartPage() {
                       id="coupon"
                       placeholder="Enter code"
                       value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
+                      onChange={e => setCouponCode(e.target.value)}
                       disabled={!!appliedCoupon}
                     />
                     <Button

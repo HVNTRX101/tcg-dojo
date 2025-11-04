@@ -8,9 +8,9 @@ interface GameNavigationProps {
   onGameSelect: (game: string) => void;
 }
 
-export function GameNavigation({ selectedGame, onGameSelect }: GameNavigationProps) {
+export function GameNavigation({ selectedGame: _selectedGame, onGameSelect }: GameNavigationProps) {
   const location = useLocation();
-  
+
   const games = [
     { name: 'All Products', slug: 'all', path: '/' },
     { name: 'Magic: The Gathering', slug: 'magic', path: '/games/magic' },
@@ -21,7 +21,7 @@ export function GameNavigation({ selectedGame, onGameSelect }: GameNavigationPro
     { name: 'Digimon', slug: 'digimon', path: '/games/digimon' },
   ];
 
-  const isActive = (game: typeof games[0]) => {
+  const isActive = (game: (typeof games)[0]) => {
     if (game.slug === 'all') {
       return location.pathname === '/' || location.pathname.startsWith('/search');
     }
@@ -32,15 +32,13 @@ export function GameNavigation({ selectedGame, onGameSelect }: GameNavigationPro
     <div className="bg-gray-900 dark:bg-black dark:border-b dark:border-[#E85002]/20 text-white">
       <div className="container mx-auto px-4">
         <nav className="flex items-center overflow-x-auto">
-          {games.map((game) => (
+          {games.map(game => (
             <motion.div
               key={game.slug}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
               className={`px-4 py-3 text-sm whitespace-nowrap hover:bg-gray-800 dark:hover:bg-[#E85002]/20 transition-colors flex items-center gap-1 relative ${
-                isActive(game)
-                  ? 'bg-gray-800 dark:bg-[#E85002]/30'
-                  : ''
+                isActive(game) ? 'bg-gray-800 dark:bg-[#E85002]/30' : ''
               }`}
             >
               <Link
@@ -55,12 +53,12 @@ export function GameNavigation({ selectedGame, onGameSelect }: GameNavigationPro
                 <motion.div
                   layoutId="activeTab"
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 dark:bg-[#E85002]"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
             </motion.div>
           ))}
-          <motion.button 
+          <motion.button
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
             className="px-4 py-3 text-sm whitespace-nowrap hover:bg-gray-800 dark:hover:bg-[#E85002]/20 transition-colors flex items-center gap-1"

@@ -1,0 +1,781 @@
+// SQLite version of the schema for quick development
+// To use this: copy this file over schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// User model for authentication and user management
+model User {
+  id                        String    @id @default(uuid())
+  email                     String    @unique
+  password                  String
+  name                      String
+  role                      String    @default("USER") // USER, SELLER, ADMIN
+  isVerified                Boolean   @default(false)
+  emailVerificationToken    String?
+  emailVerificationExpires  DateTime?
+  passwordResetToken        String?
+  passwordResetExpires      DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  // Relations
+  cart          Cart?
+  orders        Order[]
+  collections   Collection[]
+  wishlists     Wishlist[]
+  reviews       Review[]
+  seller        Seller?
+  addresses     Address[]
+  follows       Follow[]
+  sentMessages  Message[]          @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  conversationsAsUser1 Conversation[] @relation("User1Conversations")
+  conversationsAsUser2 Conversation[] @relation("User2Conversations")
+  notifications Notification[]
+  settings      UserSettings?
+  activities    ActivityFeed[]
+  productLikes  ProductLike[]
+  comments      Comment[]
+
+  @@map("users")
+}
+
+// Seller profile
+model Seller {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  businessName    String
+  description     String?
+  logoUrl         String?
+  bannerUrl       String?
+  contactEmail    String?
+  contactPhone    String?
+  website         String?
+  businessAddress String?   // JSON as string for SQLite
+  taxId           String?
+  rating          Float     @default(0)
+  totalSales      Int       @default(0)
+  totalReviews    Int       @default(0)
+  isVerified      Boolean   @default(false)
+  isActive        Boolean   @default(true)
+  responseTime    Float?    // Average response time in hours
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products        Product[]
+  reviews         Review[]
+  followers       Follow[]
+
+  @@map("sellers")
+}
+
+// Game (e.g., Pokemon, Magic, Yu-Gi-Oh)
+model Game {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  sets        Set[]
+  products    Product[]
+
+  @@map("games")
+}
+
+// Set (e.g., Base Set, Sword & Shield)
+model Set {
+  id          String    @id @default(uuid())
+  gameId      String
+  name        String
+  code        String?
+  releaseDate DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  game        Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  products    Product[]
+
+  @@unique([gameId, name])
+  @@map("sets")
+}
+
+// Product (Card listing)
+model Product {
+  id            String        @id @default(uuid())
+  gameId        String
+  setId         String?
+  sellerId      String
+  name          String
+  description   String?
+  price         Float
+  quantity      Int
+  condition     String        // MINT, NEAR_MINT, etc.
+  rarity        String?
+  finish        String        @default("NORMAL") // NORMAL, FOIL, HOLO, etc.
+  language      String        @default("English")
+  imageUrl      String?       // Deprecated - kept for backward compatibility
+  cardNumber    String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  game          Game          @relation(fields: [gameId], references: [id])
+  set           Set?          @relation(fields: [setId], references: [id])
+  seller        Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  collectionItems CollectionItem[]
+  images        ProductImage[]
+  priceHistory  PriceHistory[]
+  likes         ProductLike[]
+  comments      Comment[]
+
+  @@map("products")
+}
+
+// Product Images (Multiple images per product)
+model ProductImage {
+  id          String    @id @default(uuid())
+  productId   String
+  url         String
+  publicId    String?   // Cloudinary public ID for deletion
+  alt         String?
+  displayOrder Int      @default(0) // Order to display images
+  isPrimary   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+// Price History (Track price changes over time)
+model PriceHistory {
+  id          String    @id @default(uuid())
+  productId   String
+  price       Float
+  previousPrice Float?
+  changeType  String    // INCREASE, DECREASE, INITIAL
+  changePercentage Float?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("price_history")
+}
+
+// Shopping Cart
+model Cart {
+  id          String      @id @default(uuid())
+  userId      String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       CartItem[]
+
+  @@map("carts")
+}
+
+// Cart Items
+model CartItem {
+  id          String    @id @default(uuid())
+  cartId      String
+  productId   String
+  quantity    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+// Orders
+model Order {
+  id              String        @id @default(uuid())
+  userId          String
+  total           Float
+  subtotal        Float
+  tax             Float         @default(0)
+  shipping        Float         @default(0)
+  discount        Float         @default(0)
+  couponCode      String?
+  status          String        @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  paymentStatus   String        @default("PENDING") // PENDING, COMPLETED, FAILED, REFUNDED
+  paymentMethod   String?       // CARD, PAYPAL, etc.
+  paymentIntentId String?       // Stripe payment intent ID
+  trackingNumber  String?
+  shippingAddress String        // JSON as string for SQLite
+  billingAddress  String?       // JSON as string for SQLite
+  notes           String?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  user            User          @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  statusHistory   OrderStatusHistory[]
+
+  @@map("orders")
+}
+
+// Order Items
+model OrderItem {
+  id          String    @id @default(uuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  price       Float
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// Collection (User's card collection)
+model Collection {
+  id          String            @id @default(uuid())
+  userId      String
+  name        String
+  description String?
+  isPublic    Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Relations
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       CollectionItem[]
+
+  @@map("collections")
+}
+
+// Collection Items
+model CollectionItem {
+  id            String      @id @default(uuid())
+  collectionId  String
+  productId     String
+  quantity      Int         @default(1)
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  collection    Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product       Product     @relation(fields: [productId], references: [id])
+
+  @@unique([collectionId, productId])
+  @@map("collection_items")
+}
+
+// Wishlist
+model Wishlist {
+  id          String    @id @default(uuid())
+  userId      String
+  productId   String
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlists")
+}
+
+// Reviews
+model Review {
+  id                String    @id @default(uuid())
+  userId            String
+  productId         String?
+  sellerId          String?
+  orderId           String?   // Link to order for verified purchase
+  rating            Int
+  comment           String?
+  isVerifiedPurchase Boolean  @default(false)
+  moderationStatus  String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  moderatedBy       String?
+  moderationNotes   String?
+  helpfulCount      Int       @default(0)
+  images            String?   // JSON array of image URLs
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product           Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller            Seller?   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  comments          Comment[]
+
+  @@map("reviews")
+}
+
+// Address
+model Address {
+  id            String    @id @default(uuid())
+  userId        String
+  fullName      String
+  addressLine1  String
+  addressLine2  String?
+  city          String
+  state         String
+  postalCode    String
+  country       String
+  phone         String?
+  isDefault     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+// Follow (User following a Seller)
+model Follow {
+  id          String    @id @default(uuid())
+  userId      String
+  sellerId    String
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seller      Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sellerId])
+  @@map("follows")
+}
+
+// Coupon
+model Coupon {
+  id              String    @id @default(uuid())
+  code            String    @unique
+  description     String?
+  discountType    String    // PERCENTAGE, FIXED
+  discountValue   Float
+  minPurchase     Float     @default(0)
+  maxDiscount     Float?    // Max discount for percentage coupons
+  usageLimit      Int?      // Total usage limit
+  usageCount      Int       @default(0)
+  isActive        Boolean   @default(true)
+  validFrom       DateTime  @default(now())
+  validUntil      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("coupons")
+}
+
+// Search Analytics
+model SearchLog {
+  id          String    @id @default(uuid())
+  userId      String?
+  query       String
+  filters     String?   // JSON as string for SQLite
+  resultsCount Int      @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@map("search_logs")
+}
+
+// Product Views (for analytics)
+model ProductView {
+  id          String    @id @default(uuid())
+  userId      String?
+  productId   String
+  viewedAt    DateTime  @default(now())
+
+  @@map("product_views")
+}
+
+// ============================================
+// PHASE 3: ENHANCED UX MODELS
+// ============================================
+
+// Conversation (Chat thread between two users)
+model Conversation {
+  id              String    @id @default(uuid())
+  user1Id         String
+  user2Id         String
+  lastMessageAt   DateTime  @default(now())
+  user1UnreadCount Int      @default(0)
+  user2UnreadCount Int      @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user1           User      @relation("User1Conversations", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2           User      @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages        Message[]
+
+  @@unique([user1Id, user2Id])
+  @@map("conversations")
+}
+
+// Message (Individual message in a conversation)
+model Message {
+  id              String       @id @default(uuid())
+  conversationId  String
+  senderId        String
+  receiverId      String
+  content         String
+  isRead          Boolean      @default(false)
+  readAt          DateTime?
+  attachments     String?      // JSON array of attachment URLs
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver        User         @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// Notification (In-app notifications)
+model Notification {
+  id          String    @id @default(uuid())
+  userId      String
+  type        String    // ORDER_UPDATE, NEW_MESSAGE, NEW_REVIEW, NEW_FOLLOWER, PRICE_DROP, etc.
+  title       String
+  message     String
+  link        String?   // URL to navigate to
+  data        String?   // JSON with additional data
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// User Settings (Notification preferences and user settings)
+model UserSettings {
+  id                        String    @id @default(uuid())
+  userId                    String    @unique
+
+  // Email notification preferences
+  emailOnOrderUpdate        Boolean   @default(true)
+  emailOnNewMessage         Boolean   @default(true)
+  emailOnNewReview          Boolean   @default(true)
+  emailOnNewFollower        Boolean   @default(true)
+  emailOnPriceDrop          Boolean   @default(true)
+  emailOnMarketingUpdates   Boolean   @default(false)
+
+  // In-app notification preferences
+  notifyOnOrderUpdate       Boolean   @default(true)
+  notifyOnNewMessage        Boolean   @default(true)
+  notifyOnNewReview         Boolean   @default(true)
+  notifyOnNewFollower       Boolean   @default(true)
+  notifyOnPriceDrop         Boolean   @default(true)
+
+  // Privacy settings
+  profileIsPublic           Boolean   @default(true)
+  showCollectionsPublicly   Boolean   @default(false)
+  showReviewsPublicly       Boolean   @default(true)
+
+  // Display preferences
+  language                  String    @default("en")
+  currency                  String    @default("USD")
+  timezone                  String    @default("UTC")
+
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  // Relations
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// Activity Feed (User activity tracking for social features)
+model ActivityFeed {
+  id          String    @id @default(uuid())
+  userId      String
+  activityType String   // REVIEW_CREATED, PRODUCT_PURCHASED, COLLECTION_CREATED, FOLLOWED_SELLER, etc.
+  title       String
+  description String?
+  entityType  String?   // PRODUCT, REVIEW, COLLECTION, SELLER
+  entityId    String?
+  metadata    String?   // JSON with additional data
+  isPublic    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+
+  @@map("activity_feeds")
+}
+
+// Product Like (Favorites/likes for products - enhanced wishlist)
+model ProductLike {
+  id          String    @id @default(uuid())
+  userId      String
+  productId   String
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("product_likes")
+}
+
+// Order Status History (Track order status changes)
+model OrderStatusHistory {
+  id          String    @id @default(uuid())
+  orderId     String
+  status      String    // PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  note        String?
+  updatedBy   String?   // User ID who updated the status (seller/admin)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_status_history")
+}
+
+// Comment (Comments on products, reviews, and activity feed)
+model Comment {
+  id          String    @id @default(uuid())
+  userId      String
+  content     String
+
+  // Polymorphic relations (only one should be set)
+  productId   String?
+  reviewId    String?
+  activityId  String?
+
+  // Thread support
+  parentId    String?   // For nested comments/replies
+
+  // Engagement
+  likesCount  Int       @default(0)
+
+  // Mentions (stored as JSON array of user IDs)
+  mentions    String?   // JSON array: ["userId1", "userId2"]
+
+  // Moderation
+  isEdited    Boolean   @default(false)
+  editedAt    DateTime?
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product?      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  review      Review?       @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  activity    ActivityFeed? @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  parent      Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[]     @relation("CommentReplies")
+  likes       CommentLike[]
+
+  @@map("comments")
+}
+
+// Comment Like (Likes on comments)
+model CommentLike {
+  id          String    @id @default(uuid())
+  userId      String
+  commentId   String
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  comment     Comment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@map("comment_likes")
+}
+
+// ============================================
+// PHASE 4: ADMIN & ANALYTICS MODELS
+// ============================================
+
+// Admin Log (Track all admin actions for audit trail)
+model AdminLog {
+  id          String    @id @default(uuid())
+  adminId     String    // User ID of admin performing the action
+  action      String    // USER_SUSPENDED, PRODUCT_APPROVED, ORDER_REFUNDED, etc.
+  entityType  String?   // USER, PRODUCT, ORDER, REVIEW, SELLER
+  entityId    String?   // ID of the entity affected
+  details     String?   // JSON with additional details
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+
+  @@map("admin_logs")
+}
+
+// System Settings (Global application settings)
+model SystemSettings {
+  id                    String    @id @default(uuid())
+  key                   String    @unique
+  value                 String    // JSON value
+  category              String    @default("GENERAL") // GENERAL, PAYMENT, EMAIL, SECURITY, etc.
+  description           String?
+  isPublic              Boolean   @default(false)  // Can be accessed by non-admins
+  updatedBy             String?   // Admin user ID
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("system_settings")
+}
+
+// Report (Saved analytics reports)
+model Report {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  type        String    // SALES, INVENTORY, USER_BEHAVIOR, REVENUE, SELLER_PERFORMANCE
+  parameters  String?   // JSON with report parameters (date range, filters, etc.)
+  schedule    String?   // DAILY, WEEKLY, MONTHLY, null for one-time
+  recipients  String?   // JSON array of email addresses for scheduled reports
+  isActive    Boolean   @default(true)
+  lastRunAt   DateTime?
+  createdBy   String    // User ID of creator (admin or seller)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("reports")
+}
+
+// Sales Analytics (Aggregated sales data)
+model SalesAnalytics {
+  id              String    @id @default(uuid())
+  date            DateTime  // Date for this analytics record
+  period          String    @default("DAILY") // HOURLY, DAILY, WEEKLY, MONTHLY
+
+  // Sales metrics
+  totalOrders     Int       @default(0)
+  totalRevenue    Float     @default(0)
+  totalItems      Int       @default(0)
+  averageOrderValue Float   @default(0)
+
+  // Order status breakdown
+  pendingOrders   Int       @default(0)
+  processingOrders Int      @default(0)
+  shippedOrders   Int       @default(0)
+  deliveredOrders Int       @default(0)
+  cancelledOrders Int       @default(0)
+
+  // Payment breakdown
+  completedPayments Float    @default(0)
+  refundedAmount   Float     @default(0)
+
+  // Customer metrics
+  newCustomers    Int       @default(0)
+  returningCustomers Int    @default(0)
+
+  // Product metrics
+  topProductId    String?   // Most sold product
+  topProductSales Int       @default(0)
+
+  // Seller metrics (if applicable)
+  sellerId        String?   // Null for global analytics, set for seller-specific
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([date, period, sellerId])
+  @@map("sales_analytics")
+}
+
+// User Behavior Analytics
+model UserBehaviorAnalytics {
+  id                String    @id @default(uuid())
+  date              DateTime  // Date for this analytics record
+  period            String    @default("DAILY") // DAILY, WEEKLY, MONTHLY
+
+  // User engagement
+  totalUsers        Int       @default(0)
+  activeUsers       Int       @default(0)
+  newRegistrations  Int       @default(0)
+
+  // Activity metrics
+  totalSessions     Int       @default(0)
+  averageSessionDuration Float @default(0) // in minutes
+
+  // Product interactions
+  productViews      Int       @default(0)
+  productSearches   Int       @default(0)
+  productsAddedToCart Int     @default(0)
+  productsLiked     Int       @default(0)
+
+  // Conversion metrics
+  cartConversionRate Float    @default(0) // Percentage
+  checkoutAbandonmentRate Float @default(0) // Percentage
+
+  // Social metrics
+  reviewsCreated    Int       @default(0)
+  messagesExchanged Int       @default(0)
+  newFollows        Int       @default(0)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([date, period])
+  @@map("user_behavior_analytics")
+}
+
+// Inventory Analytics
+model InventoryAnalytics {
+  id                  String    @id @default(uuid())
+  date                DateTime  // Date for this analytics record
+  period              String    @default("DAILY") // DAILY, WEEKLY, MONTHLY
+
+  // Inventory metrics
+  totalProducts       Int       @default(0)
+  totalInventory      Int       @default(0)
+  lowStockProducts    Int       @default(0) // Products below threshold
+  outOfStockProducts  Int       @default(0)
+
+  // Product additions
+  newProductsAdded    Int       @default(0)
+  productsRemoved     Int       @default(0)
+
+  // Inventory value
+  totalInventoryValue Float     @default(0)
+
+  // Seller-specific (if applicable)
+  sellerId            String?   // Null for global analytics
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([date, period, sellerId])
+  @@map("inventory_analytics")
+}

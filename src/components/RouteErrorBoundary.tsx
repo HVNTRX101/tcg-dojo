@@ -11,11 +11,9 @@ export function RouteErrorBoundary() {
   // Determine error type and message
   let errorMessage = 'An unexpected error occurred';
   let errorStatus: number | undefined;
-  let errorStatusText: string | undefined;
 
   if (isRouteErrorResponse(error)) {
     errorStatus = error.status;
-    errorStatusText = error.statusText;
     errorMessage = error.data?.message || error.statusText || errorMessage;
   } else if (error instanceof Error) {
     errorMessage = error.message;
@@ -73,9 +71,7 @@ export function RouteErrorBoundary() {
           </h1>
 
           {/* Error Description */}
-          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-            {getErrorDescription()}
-          </p>
+          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">{getErrorDescription()}</p>
 
           {/* Error Details (Development Only) */}
           {isDevelopment && (
@@ -101,25 +97,15 @@ export function RouteErrorBoundary() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 justify-center">
-            <Button
-              onClick={() => navigate(-1)}
-              variant="outline"
-              size="default"
-            >
+            <Button onClick={() => navigate(-1)} variant="outline" size="default">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
             </Button>
-            <Button
-              onClick={() => navigate('/')}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
+            <Button onClick={() => navigate('/')} className="bg-blue-600 hover:bg-blue-700">
               <Home className="w-4 h-4 mr-2" />
               Go Home
             </Button>
-            <Button
-              onClick={() => window.location.reload()}
-              variant="outline"
-            >
+            <Button onClick={() => window.location.reload()} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>

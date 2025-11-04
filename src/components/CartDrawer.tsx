@@ -1,12 +1,11 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "./ui/sheet";
-import { Button } from "./ui/button";
-import { useCart } from "./CartContext";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
-import { ScrollArea } from "./ui/scroll-area";
-import { SHIPPING, CARD_SIZES } from "../constants";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
+import { Button } from './ui/button';
+import { useCart } from './CartContext';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { Separator } from './ui/separator';
+import { ScrollArea } from './ui/scroll-area';
+import { SHIPPING, CARD_SIZES } from '../constants';
 
 interface CartDrawerProps {
   open: boolean;
@@ -19,12 +18,13 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(price);
   };
 
   const subtotal = getCartTotal();
-  const shipping = subtotal > 0 ? (subtotal > SHIPPING.FREE_THRESHOLD ? 0 : SHIPPING.STANDARD_COST) : 0;
+  const shipping =
+    subtotal > 0 ? (subtotal > SHIPPING.FREE_THRESHOLD ? 0 : SHIPPING.STANDARD_COST) : 0;
   const total = subtotal + shipping;
 
   return (
@@ -49,16 +49,22 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
           <>
             <ScrollArea className="flex-1 -mx-6 px-6">
               <div className="space-y-4 py-4">
-                {cartItems.map((item) => (
+                {cartItems.map(item => (
                   <div key={item.id} className="flex gap-4 border rounded-lg p-3">
-                    <div className="rounded-md overflow-hidden bg-muted flex-shrink-0" style={{ width: CARD_SIZES.CART_DRAWER_IMAGE_WIDTH, height: CARD_SIZES.CART_DRAWER_IMAGE_HEIGHT }}>
+                    <div
+                      className="rounded-md overflow-hidden bg-muted flex-shrink-0"
+                      style={{
+                        width: CARD_SIZES.CART_DRAWER_IMAGE_WIDTH,
+                        height: CARD_SIZES.CART_DRAWER_IMAGE_HEIGHT,
+                      }}
+                    >
                       <ImageWithFallback
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    
+
                     <div className="flex-1 space-y-2">
                       <div>
                         <h4 className="line-clamp-1">{item.name}</h4>
@@ -88,7 +94,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                             <Plus className="w-3 h-3" />
                           </Button>
                         </div>
-                        
+
                         <Button
                           variant="ghost"
                           size="icon"
@@ -139,11 +145,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                 <Button className="w-full" size="lg">
                   Checkout
                 </Button>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={clearCart}
-                >
+                <Button variant="outline" className="w-full" onClick={clearCart}>
                   Clear Cart
                 </Button>
               </div>

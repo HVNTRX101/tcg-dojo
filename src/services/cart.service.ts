@@ -1,5 +1,11 @@
 import { apiClient } from './api';
-import { Cart, CartResponse, AddToCartRequest, UpdateCartItemRequest, CartSummary } from '../types/cart.types';
+import {
+  Cart,
+  CartResponse,
+  AddToCartRequest,
+  UpdateCartItemRequest,
+  CartSummary,
+} from '../types/cart.types';
 
 export const cartService = {
   // Get user's cart

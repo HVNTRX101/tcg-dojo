@@ -54,8 +54,8 @@ export function FilterSidebar({
   ]);
 
   const toggleSection = (title: string) => {
-    setExpandedSections((prev) =>
-      prev.includes(title) ? prev.filter((s) => s !== title) : [...prev, title]
+    setExpandedSections(prev =>
+      prev.includes(title) ? prev.filter(s => s !== title) : [...prev, title]
     );
   };
 
@@ -191,16 +191,12 @@ export function FilterSidebar({
                 className="space-y-4 pt-4"
               >
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    ${priceRange[0]}
-                  </span>
-                  <span className="text-muted-foreground">
-                    ${priceRange[1]}
-                  </span>
+                  <span className="text-muted-foreground">${priceRange[0]}</span>
+                  <span className="text-muted-foreground">${priceRange[1]}</span>
                 </div>
                 <Slider
                   value={priceRange}
-                  onValueChange={(value) => onPriceRangeChange(value as [number, number])}
+                  onValueChange={value => onPriceRangeChange(value as [number, number])}
                   max={PRICE_RANGE.MAX}
                   min={PRICE_RANGE.MIN}
                   step={PRICE_RANGE.STEP}
@@ -211,7 +207,7 @@ export function FilterSidebar({
           </Collapsible>
 
           {/* Other Filter Sections */}
-          {sections.map((section) => {
+          {sections.map(section => {
             const isExpanded = expandedSections.includes(section.title);
             const selectedCount = section.items.filter(item => item.selected).length;
 
@@ -245,7 +241,7 @@ export function FilterSidebar({
                     className="space-y-3 pt-3 overflow-y-auto"
                     style={{ maxHeight: `${FILTER_CONFIG.ITEMS_MAX_HEIGHT}px` }}
                   >
-                    {section.items.map((item) => (
+                    {section.items.map(item => (
                       <motion.div
                         key={item.value}
                         whileHover={{ x: 2 }}

@@ -1,0 +1,293 @@
+// SQLite version of the schema for quick development
+// To use this: copy this file over schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// User model for authentication and user management
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          String    @default("USER") // USER, SELLER, ADMIN
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  cart          Cart?
+  orders        Order[]
+  collections   Collection[]
+  wishlists     Wishlist[]
+  reviews       Review[]
+  seller        Seller?
+  addresses     Address[]
+  follows       Follow[]
+
+  @@map("users")
+}
+
+// Seller profile
+model Seller {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  businessName    String
+  description     String?
+  rating          Float     @default(0)
+  totalSales      Int       @default(0)
+  isVerified      Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products        Product[]
+  reviews         Review[]
+  followers       Follow[]
+
+  @@map("sellers")
+}
+
+// Game (e.g., Pokemon, Magic, Yu-Gi-Oh)
+model Game {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  sets        Set[]
+  products    Product[]
+
+  @@map("games")
+}
+
+// Set (e.g., Base Set, Sword & Shield)
+model Set {
+  id          String    @id @default(uuid())
+  gameId      String
+  name        String
+  code        String?
+  releaseDate DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  game        Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  products    Product[]
+
+  @@unique([gameId, name])
+  @@map("sets")
+}
+
+// Product (Card listing)
+model Product {
+  id            String        @id @default(uuid())
+  gameId        String
+  setId         String?
+  sellerId      String
+  name          String
+  description   String?
+  price         Float
+  quantity      Int
+  condition     String        // MINT, NEAR_MINT, etc.
+  rarity        String?
+  finish        String        @default("NORMAL") // NORMAL, FOIL, HOLO, etc.
+  language      String        @default("English")
+  imageUrl      String?
+  cardNumber    String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  game          Game          @relation(fields: [gameId], references: [id])
+  set           Set?          @relation(fields: [setId], references: [id])
+  seller        Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  collectionItems CollectionItem[]
+
+  @@map("products")
+}
+
+// Shopping Cart
+model Cart {
+  id          String      @id @default(uuid())
+  userId      String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       CartItem[]
+
+  @@map("carts")
+}
+
+// Cart Items
+model CartItem {
+  id          String    @id @default(uuid())
+  cartId      String
+  productId   String
+  quantity    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+// Orders
+model Order {
+  id              String        @id @default(uuid())
+  userId          String
+  total           Float
+  subtotal        Float
+  tax             Float         @default(0)
+  shipping        Float         @default(0)
+  status          String        @default("PENDING") // PENDING, PROCESSING, SHIPPED, etc.
+  shippingAddress String        // JSON as string for SQLite
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  user            User          @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+
+  @@map("orders")
+}
+
+// Order Items
+model OrderItem {
+  id          String    @id @default(uuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  price       Float
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// Collection (User's card collection)
+model Collection {
+  id          String            @id @default(uuid())
+  userId      String
+  name        String
+  description String?
+  isPublic    Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Relations
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       CollectionItem[]
+
+  @@map("collections")
+}
+
+// Collection Items
+model CollectionItem {
+  id            String      @id @default(uuid())
+  collectionId  String
+  productId     String
+  quantity      Int         @default(1)
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  collection    Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product       Product     @relation(fields: [productId], references: [id])
+
+  @@unique([collectionId, productId])
+  @@map("collection_items")
+}
+
+// Wishlist
+model Wishlist {
+  id          String    @id @default(uuid())
+  userId      String
+  productId   String
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlists")
+}
+
+// Reviews
+model Review {
+  id          String    @id @default(uuid())
+  userId      String
+  productId   String?
+  sellerId    String?
+  rating      Int
+  comment     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller      Seller?   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+// Address
+model Address {
+  id            String    @id @default(uuid())
+  userId        String
+  fullName      String
+  addressLine1  String
+  addressLine2  String?
+  city          String
+  state         String
+  postalCode    String
+  country       String
+  phone         String?
+  isDefault     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+// Follow (User following a Seller)
+model Follow {
+  id          String    @id @default(uuid())
+  userId      String
+  sellerId    String
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seller      Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sellerId])
+  @@map("follows")
+}

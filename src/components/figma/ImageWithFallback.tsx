@@ -1,60 +1,60 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react';
 
 const ERROR_IMG_SRC =
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg=='
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg==';
 
 // Placeholder while image is loading
 const PLACEHOLDER_SRC =
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YzZjRmNiIvPjwvc3ZnPg=='
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YzZjRmNiIvPjwvc3ZnPg==';
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   lazy?: boolean; // Enable lazy loading (default: true)
 }
 
 export function ImageWithFallback(props: ImageWithFallbackProps) {
-  const [didError, setDidError] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [isInView, setIsInView] = useState(false)
-  const imgRef = useRef<HTMLImageElement>(null)
+  const { src, alt, style, className, lazy = true, ...rest } = props;
 
-  const { src, alt, style, className, lazy = true, ...rest } = props
+  const [didError, setDidError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  // Initialize isInView based on lazy prop - if not lazy, start as visible
+  const [isInView, setIsInView] = useState(!lazy);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // Intersection Observer for lazy loading
   useEffect(() => {
     if (!lazy || !imgRef.current) {
-      setIsInView(true)
-      return
+      return;
     }
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
-            setIsInView(true)
-            observer.disconnect()
+            setIsInView(true);
+            observer.disconnect();
           }
-        })
+        });
       },
       {
         rootMargin: '50px', // Start loading 50px before the image enters viewport
       }
-    )
+    );
 
-    observer.observe(imgRef.current)
+    observer.observe(imgRef.current);
 
     return () => {
-      observer.disconnect()
-    }
-  }, [lazy])
+      observer.disconnect();
+    };
+  }, [lazy]);
 
   const handleError = () => {
-    setDidError(true)
-    setIsLoaded(true)
-  }
+    setDidError(true);
+    setIsLoaded(true);
+  };
 
   const handleLoad = () => {
-    setIsLoaded(true)
-  }
+    setIsLoaded(true);
+  };
 
   // Error state
   if (didError) {
@@ -64,19 +64,14 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
         style={style}
       >
         <div className="flex items-center justify-center w-full h-full">
-          <img
-            src={ERROR_IMG_SRC}
-            alt="Error loading image"
-            {...rest}
-            data-original-url={src}
-          />
+          <img src={ERROR_IMG_SRC} alt="Error loading image" {...rest} data-original-url={src} />
         </div>
       </div>
-    )
+    );
   }
 
   // Determine which src to use
-  const imageSrc = lazy && !isInView ? PLACEHOLDER_SRC : src
+  const imageSrc = lazy && !isInView ? PLACEHOLDER_SRC : src;
 
   return (
     <>
@@ -93,5 +88,5 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
         decoding="async"
       />
     </>
-  )
+  );
 }

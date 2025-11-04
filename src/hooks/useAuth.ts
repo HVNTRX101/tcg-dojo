@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
-import { LoginCredentials, SignupCredentials, User, UserProfile } from '../types/user.types';
+import { LoginCredentials, SignupCredentials, UserProfile } from '../types/user.types';
 import { AuthResponse } from '../types/user.types';
 import { authToken, refreshToken } from '../services/api';
 
@@ -39,21 +39,21 @@ export const useUserProfile = (userId?: string) => {
 // Mutations
 export const useLogin = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (credentials: LoginCredentials) => authService.login(credentials),
     onSuccess: (data: AuthResponse) => {
       // Store tokens
       authToken.set(data.token);
       refreshToken.set(data.refreshToken);
-      
+
       // Update user query cache
       queryClient.setQueryData(authKeys.user(), data.user);
-      
+
       // Invalidate and refetch user profile
       queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Login failed:', error);
     },
   });
@@ -61,21 +61,21 @@ export const useLogin = () => {
 
 export const useSignup = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (credentials: SignupCredentials) => authService.signup(credentials),
     onSuccess: (data: AuthResponse) => {
       // Store tokens
       authToken.set(data.token);
       refreshToken.set(data.refreshToken);
-      
+
       // Update user query cache
       queryClient.setQueryData(authKeys.user(), data.user);
-      
+
       // Invalidate and refetch user profile
       queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Signup failed:', error);
     },
   });
@@ -83,14 +83,14 @@ export const useSignup = () => {
 
 export const useLogout = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
       // Clear tokens
       authToken.remove();
       refreshToken.remove();
-      
+
       // Clear all cached data
       queryClient.clear();
     },
@@ -105,13 +105,13 @@ export const useLogout = () => {
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: Partial<UserProfile>) => authService.updateProfile(data),
-    onSuccess: (updatedProfile) => {
+    onSuccess: updatedProfile => {
       // Update profile cache
       queryClient.setQueryData(authKeys.profile(), updatedProfile);
-      
+
       // Invalidate user queries to refetch
       queryClient.invalidateQueries({ queryKey: authKeys.user() });
     },
@@ -120,8 +120,13 @@ export const useUpdateProfile = () => {
 
 export const useChangePassword = () => {
   return useMutation({
-    mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) =>
-      authService.changePassword(currentPassword, newPassword),
+    mutationFn: ({
+      currentPassword,
+      newPassword,
+    }: {
+      currentPassword: string;
+      newPassword: string;
+    }) => authService.changePassword(currentPassword, newPassword),
   });
 };
 
@@ -153,7 +158,7 @@ export const useResendVerification = () => {
 // Utility hook for auth state
 export const useAuth = () => {
   const { data: user, isLoading, error } = useCurrentUser();
-  
+
   return {
     user,
     isLoading,

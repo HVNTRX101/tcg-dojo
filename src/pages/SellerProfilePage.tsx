@@ -1,121 +1,125 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
-import { Separator } from '../components/ui/separator';
 import { Star, MapPin, Calendar, Package, MessageCircle, Heart, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Product } from '../types/product.types';
 
 // Mock seller data
 const MOCK_SELLER = {
-  id: "1",
-  name: "CardVault Pro",
-  email: "contact@cardvaultpro.com",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-  bio: "Professional card dealer specializing in Magic: The Gathering, Pokemon, and Yu-Gi-Oh! cards. Over 10 years of experience in the TCG market.",
-  location: "San Francisco, CA",
-  website: "https://cardvaultpro.com",
-  joinedDate: "2014-03-15",
+  id: '1',
+  name: 'CardVault Pro',
+  email: 'contact@cardvaultpro.com',
+  avatar:
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+  bio: 'Professional card dealer specializing in Magic: The Gathering, Pokemon, and Yu-Gi-Oh! cards. Over 10 years of experience in the TCG market.',
+  location: 'San Francisco, CA',
+  website: 'https://cardvaultpro.com',
+  joinedDate: '2014-03-15',
   totalSales: 15420,
   totalProducts: 2847,
   rating: 4.9,
   reviewCount: 1247,
-  responseTime: "Within 2 hours",
-  shippingPolicy: "Free shipping on orders over $50. Standard shipping $4.99.",
-  returnPolicy: "30-day return policy for unopened products. Buyer pays return shipping.",
+  responseTime: 'Within 2 hours',
+  shippingPolicy: 'Free shipping on orders over $50. Standard shipping $4.99.',
+  returnPolicy: '30-day return policy for unopened products. Buyer pays return shipping.',
   isFollowing: false,
 };
 
 // Mock seller listings
 const MOCK_LISTINGS: Product[] = [
   {
-    id: "1",
-    name: "Lightning Bolt",
-    set: "Alpha Edition",
-    cardNumber: "161",
-    rarity: "Common",
+    id: '1',
+    name: 'Lightning Bolt',
+    set: 'Alpha Edition',
+    cardNumber: '161',
+    rarity: 'Common',
     price: 299.99,
-    condition: "Near Mint",
-    finish: "Normal",
-    image: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop",
-    seller: "CardVault Pro",
+    condition: 'Near Mint',
+    finish: 'Normal',
+    image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop',
+    seller: 'CardVault Pro',
     sellerRating: 4.9,
     quantity: 1,
-    game: "Magic: The Gathering"
+    game: 'Magic: The Gathering',
   },
   {
-    id: "9",
-    name: "Liliana of the Veil",
-    set: "Innistrad",
-    cardNumber: "105",
-    rarity: "Mythic Rare",
+    id: '9',
+    name: 'Liliana of the Veil',
+    set: 'Innistrad',
+    cardNumber: '105',
+    rarity: 'Mythic Rare',
     price: 67.99,
-    condition: "Near Mint",
-    finish: "Normal",
-    image: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop",
-    seller: "CardVault Pro",
+    condition: 'Near Mint',
+    finish: 'Normal',
+    image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop',
+    seller: 'CardVault Pro',
     sellerRating: 4.9,
     quantity: 4,
-    game: "Magic: The Gathering"
+    game: 'Magic: The Gathering',
   },
   {
-    id: "14",
-    name: "Ragavan, Nimble Pilferer",
-    set: "Modern Horizons 2",
-    cardNumber: "138",
-    rarity: "Mythic Rare",
-    price: 62.00,
-    condition: "Near Mint",
-    finish: "Normal",
-    image: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop",
-    seller: "CardVault Pro",
+    id: '14',
+    name: 'Ragavan, Nimble Pilferer',
+    set: 'Modern Horizons 2',
+    cardNumber: '138',
+    rarity: 'Mythic Rare',
+    price: 62.0,
+    condition: 'Near Mint',
+    finish: 'Normal',
+    image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop',
+    seller: 'CardVault Pro',
     sellerRating: 4.9,
     quantity: 2,
-    game: "Magic: The Gathering"
+    game: 'Magic: The Gathering',
   },
 ];
 
 // Mock reviews
 const MOCK_REVIEWS = [
   {
-    id: "1",
-    buyerName: "John D.",
-    buyerAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+    id: '1',
+    buyerName: 'John D.',
+    buyerAvatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
     rating: 5,
-    comment: "Excellent seller! Cards arrived in perfect condition and shipping was fast.",
-    date: "2024-01-15",
-    productName: "Lightning Bolt",
-    productImage: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop",
+    comment: 'Excellent seller! Cards arrived in perfect condition and shipping was fast.',
+    date: '2024-01-15',
+    productName: 'Lightning Bolt',
+    productImage: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop',
   },
   {
-    id: "2",
-    buyerName: "Sarah M.",
-    buyerAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
+    id: '2',
+    buyerName: 'Sarah M.',
+    buyerAvatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
     rating: 5,
-    comment: "Great communication and packaging. Will definitely buy again!",
-    date: "2024-01-10",
-    productName: "Liliana of the Veil",
-    productImage: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop",
+    comment: 'Great communication and packaging. Will definitely buy again!',
+    date: '2024-01-10',
+    productName: 'Liliana of the Veil',
+    productImage: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop',
   },
   {
-    id: "3",
-    buyerName: "Mike R.",
-    buyerAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face",
+    id: '3',
+    buyerName: 'Mike R.',
+    buyerAvatar:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
     rating: 4,
-    comment: "Good seller, cards as described. Minor delay in shipping but overall satisfied.",
-    date: "2024-01-05",
-    productName: "Ragavan, Nimble Pilferer",
-    productImage: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop",
+    comment: 'Good seller, cards as described. Minor delay in shipping but overall satisfied.',
+    date: '2024-01-05',
+    productName: 'Ragavan, Nimble Pilferer',
+    productImage: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop',
   },
 ];
 
 export default function SellerProfilePage() {
-  const { sellerId } = useParams();
-  const [activeTab, setActiveTab] = useState("listings");
+  const { sellerId: _sellerId } = useParams();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('listings');
   const [isFollowing, setIsFollowing] = useState(MOCK_SELLER.isFollowing);
 
   const handleFollowToggle = () => {
@@ -123,7 +127,7 @@ export default function SellerProfilePage() {
   };
 
   const handleViewProduct = (productId: string) => {
-    window.location.href = `/products/${productId}`;
+    navigate(`/products/${productId}`);
   };
 
   const renderStars = (rating: number) => {
@@ -166,7 +170,7 @@ export default function SellerProfilePage() {
                       </div>
                       <Badge variant="secondary">{MOCK_SELLER.totalSales} sales</Badge>
                     </div>
-                    
+
                     <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
@@ -174,9 +178,10 @@ export default function SellerProfilePage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
-                        Joined {new Date(MOCK_SELLER.joinedDate).toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'long' 
+                        Joined{' '}
+                        {new Date(MOCK_SELLER.joinedDate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
                         })}
                       </div>
                     </div>
@@ -187,11 +192,13 @@ export default function SellerProfilePage() {
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <Button
-                      variant={isFollowing ? "outline" : "default"}
+                      variant={isFollowing ? 'outline' : 'default'}
                       onClick={handleFollowToggle}
                       className="gap-2"
                     >
-                      <Heart className={`h-4 w-4 ${isFollowing ? 'fill-red-500 text-red-500' : ''}`} />
+                      <Heart
+                        className={`h-4 w-4 ${isFollowing ? 'fill-red-500 text-red-500' : ''}`}
+                      />
                       {isFollowing ? 'Following' : 'Follow'}
                     </Button>
                     <Button variant="outline" className="gap-2">
@@ -250,15 +257,17 @@ export default function SellerProfilePage() {
 
           <TabsContent value="listings" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {MOCK_LISTINGS.map((product) => (
+              {MOCK_LISTINGS.map(product => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={() => handleViewProduct(product.id)}>
+                  <Card
+                    className="cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => handleViewProduct(product.id)}
+                  >
                     <CardContent className="p-4">
                       <div className="aspect-square mb-4">
                         <img
@@ -270,12 +279,18 @@ export default function SellerProfilePage() {
                       <h3 className="font-semibold mb-2">{product.name}</h3>
                       <p className="text-sm text-muted-foreground mb-2">{product.set}</p>
                       <div className="flex gap-1 mb-2">
-                        <Badge variant="secondary" className="text-xs">{product.rarity}</Badge>
-                        <Badge variant="outline" className="text-xs">{product.condition}</Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {product.rarity}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {product.condition}
+                        </Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
-                        <span className="text-sm text-muted-foreground">Qty: {product.quantity}</span>
+                        <span className="text-sm text-muted-foreground">
+                          Qty: {product.quantity}
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
@@ -286,7 +301,7 @@ export default function SellerProfilePage() {
 
           <TabsContent value="reviews" className="mt-6">
             <div className="space-y-4">
-              {MOCK_REVIEWS.map((review) => (
+              {MOCK_REVIEWS.map(review => (
                 <Card key={review.id}>
                   <CardContent className="p-6">
                     <div className="flex gap-4">

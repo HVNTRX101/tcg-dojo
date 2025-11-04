@@ -12,7 +12,7 @@ export function AccountMenu({ onClose, userEmail }: AccountMenuProps) {
     <div className="fixed inset-0 z-50">
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/20" onClick={onClose} />
-      
+
       {/* Menu Panel */}
       <div className="fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-2xl overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
@@ -55,7 +55,11 @@ export function AccountMenu({ onClose, userEmail }: AccountMenuProps) {
                 </Link>
               </li>
               <li>
-                <Link to="/collection" className="text-gray-700 hover:text-blue-600" onClick={onClose}>
+                <Link
+                  to="/collection"
+                  className="text-gray-700 hover:text-blue-600"
+                  onClick={onClose}
+                >
                   Your Collection
                 </Link>
               </li>

@@ -72,9 +72,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             variant={currentPage === page ? 'default' : 'outline'}
             onClick={() => onPageChange(page as number)}
             className={`h-10 w-10 ${
-              currentPage === page
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : ''
+              currentPage === page ? 'bg-blue-600 text-white hover:bg-blue-700' : ''
             }`}
           >
             {page}

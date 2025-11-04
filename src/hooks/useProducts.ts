@@ -1,7 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { productsService } from '../services/products.service';
-import { ProductFilters, Product } from '../types/product.types';
-import { PaginatedResponse } from '../types/api.types';
+import { ProductFilters } from '../types/product.types';
 import { CACHE_STALE_TIME, SEARCH_CONFIG, PRODUCT_LIMITS } from '../constants';
 
 // Query keys
@@ -11,14 +10,14 @@ export const productKeys = {
   list: (filters: ProductFilters) => [...productKeys.lists(), filters] as const,
   details: () => [...productKeys.all, 'detail'] as const,
   detail: (id: string) => [...productKeys.details(), id] as const,
-  search: (query: string, filters: Omit<ProductFilters, 'search'>) => 
+  search: (query: string, filters: Omit<ProductFilters, 'search'>) =>
     [...productKeys.all, 'search', query, filters] as const,
-  game: (game: string, filters: Omit<ProductFilters, 'game'>) => 
+  game: (game: string, filters: Omit<ProductFilters, 'game'>) =>
     [...productKeys.all, 'game', game, filters] as const,
-  set: (set: string, filters: Omit<ProductFilters, 'set'>) => 
+  set: (set: string, filters: Omit<ProductFilters, 'set'>) =>
     [...productKeys.all, 'set', set, filters] as const,
   listings: (id: string) => [...productKeys.detail(id), 'listings'] as const,
-  priceHistory: (id: string, period: string) => 
+  priceHistory: (id: string, period: string) =>
     [...productKeys.detail(id), 'priceHistory', period] as const,
   related: (id: string) => [...productKeys.detail(id), 'related'] as const,
   games: () => [...productKeys.all, 'games'] as const,
@@ -89,7 +88,10 @@ export const usePriceHistory = (productId: string, period: '1M' | '3M' | '6M' | 
   });
 };
 
-export const useRelatedProducts = (productId: string, limit: number = PRODUCT_LIMITS.RELATED_PRODUCTS) => {
+export const useRelatedProducts = (
+  productId: string,
+  limit: number = PRODUCT_LIMITS.RELATED_PRODUCTS
+) => {
   return useQuery({
     queryKey: productKeys.related(productId),
     queryFn: () => productsService.getRelatedProducts(productId, limit),
@@ -127,10 +129,11 @@ export const useSetsByGame = (game: string) => {
 // Utility hook for invalidating product queries
 export const useInvalidateProducts = () => {
   const queryClient = useQueryClient();
-  
+
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: productKeys.all }),
-    invalidateProduct: (id: string) => queryClient.invalidateQueries({ queryKey: productKeys.detail(id) }),
+    invalidateProduct: (id: string) =>
+      queryClient.invalidateQueries({ queryKey: productKeys.detail(id) }),
     invalidateList: () => queryClient.invalidateQueries({ queryKey: productKeys.lists() }),
   };
 };

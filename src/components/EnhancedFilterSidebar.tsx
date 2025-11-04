@@ -44,7 +44,14 @@ const filterSections: FilterSection[] = [
   },
   {
     title: 'Product Line',
-    items: ['Pokémon', 'Magic: The Gathering', 'Yu-Gi-Oh!', 'Disney Lorcana', 'One Piece', 'Digimon'],
+    items: [
+      'Pokémon',
+      'Magic: The Gathering',
+      'Yu-Gi-Oh!',
+      'Disney Lorcana',
+      'One Piece',
+      'Digimon',
+    ],
     searchable: true,
   },
   {
@@ -81,17 +88,15 @@ export default function EnhancedFilterSidebar({ onClose }: EnhancedFilterSidebar
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
 
   const toggleSection = (title: string) => {
-    setExpandedSections((prev) =>
-      prev.includes(title) ? prev.filter((s) => s !== title) : [...prev, title]
+    setExpandedSections(prev =>
+      prev.includes(title) ? prev.filter(s => s !== title) : [...prev, title]
     );
   };
 
   const toggleFilter = (section: string, item: string) => {
-    setSelectedFilters((prev) => {
+    setSelectedFilters(prev => {
       const current = prev[section] || [];
-      const updated = current.includes(item)
-        ? current.filter((i) => i !== item)
-        : [...current, item];
+      const updated = current.includes(item) ? current.filter(i => i !== item) : [...current, item];
       return { ...prev, [section]: updated };
     });
   };
@@ -107,9 +112,7 @@ export default function EnhancedFilterSidebar({ onClose }: EnhancedFilterSidebar
   const getFilteredItems = (section: FilterSection) => {
     const searchTerm = searchTerms[section.title] || '';
     if (!searchTerm) return section.items;
-    return section.items.filter((item) =>
-      item.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    return section.items.filter(item => item.toLowerCase().includes(searchTerm.toLowerCase()));
   };
 
   return (
@@ -130,13 +133,18 @@ export default function EnhancedFilterSidebar({ onClose }: EnhancedFilterSidebar
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm">Applied Filters ({getActiveFilterCount()})</span>
-              <Button variant="link" size="sm" onClick={clearAllFilters} className="h-auto p-0 text-blue-600">
+              <Button
+                variant="link"
+                size="sm"
+                onClick={clearAllFilters}
+                className="h-auto p-0 text-blue-600"
+              >
                 Reset All
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">
               {Object.entries(selectedFilters).map(([section, items]) =>
-                items.map((item) => (
+                items.map(item => (
                   <div
                     key={`${section}-${item}`}
                     className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
@@ -156,7 +164,7 @@ export default function EnhancedFilterSidebar({ onClose }: EnhancedFilterSidebar
       {/* Filter Sections */}
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-1">
-          {filterSections.map((section) => {
+          {filterSections.map(section => {
             const isExpanded = expandedSections.includes(section.title);
             const filteredItems = getFilteredItems(section);
             const selectedCount = selectedFilters[section.title]?.length || 0;
@@ -192,8 +200,8 @@ export default function EnhancedFilterSidebar({ onClose }: EnhancedFilterSidebar
                         <Input
                           placeholder={`Search ${section.title.toLowerCase()}...`}
                           value={searchTerms[section.title] || ''}
-                          onChange={(e) =>
-                            setSearchTerms((prev) => ({
+                          onChange={e =>
+                            setSearchTerms(prev => ({
                               ...prev,
                               [section.title]: e.target.value,
                             }))
@@ -204,7 +212,7 @@ export default function EnhancedFilterSidebar({ onClose }: EnhancedFilterSidebar
                     )}
 
                     {/* Filter items */}
-                    {filteredItems.map((item) => {
+                    {filteredItems.map(item => {
                       const isChecked = selectedFilters[section.title]?.includes(item) || false;
                       return (
                         <div key={item} className="flex items-center gap-2">

@@ -1,5 +1,13 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { LAYOUT_SPACING } from "../constants";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { LAYOUT_SPACING } from '../constants';
 
 interface PriceHistoryChartProps {
   data: Array<{ date: string; price: number }>;
@@ -15,12 +23,12 @@ export function PriceHistoryChart({ data }: PriceHistoryChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-          <XAxis 
-            dataKey="date" 
+          <XAxis
+            dataKey="date"
             className="text-xs"
             tick={{ fill: 'hsl(var(--muted-foreground))' }}
           />
-          <YAxis 
+          <YAxis
             tickFormatter={formatPrice}
             className="text-xs"
             tick={{ fill: 'hsl(var(--muted-foreground))' }}
@@ -33,10 +41,10 @@ export function PriceHistoryChart({ data }: PriceHistoryChartProps) {
               borderRadius: '6px',
             }}
           />
-          <Line 
-            type="monotone" 
-            dataKey="price" 
-            stroke="hsl(var(--primary))" 
+          <Line
+            type="monotone"
+            dataKey="price"
+            stroke="hsl(var(--primary))"
             strokeWidth={2}
             dot={{ fill: 'hsl(var(--primary))' }}
           />

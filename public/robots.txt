@@ -1,0 +1,27 @@
+# robots.txt for TCG Marketplace
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin
+Disallow: /settings
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+Disallow: /messages
+
+# Disallow API endpoints
+Disallow: /api
+
+# Allow product pages
+Allow: /products
+Allow: /sellers
+Allow: /games
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl delay (optional, adjust as needed)
+Crawl-delay: 10

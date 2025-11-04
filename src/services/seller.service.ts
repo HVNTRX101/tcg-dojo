@@ -48,29 +48,36 @@ export const sellerService = {
   },
 
   // Get seller listings
-  getSellerListings: (sellerId: string, filters: {
-    game?: string;
-    set?: string;
-    rarity?: string;
-    condition?: string;
-    finish?: string;
-    search?: string;
-    page?: number;
-    limit?: number;
-  } = {}): Promise<{ listings: ProductListing[]; pagination: any }> => {
+  getSellerListings: (
+    sellerId: string,
+    filters: {
+      game?: string;
+      set?: string;
+      rarity?: string;
+      condition?: string;
+      finish?: string;
+      search?: string;
+      page?: number;
+      limit?: number;
+    } = {}
+  ): Promise<{ listings: ProductListing[]; pagination: any }> => {
     const params = new URLSearchParams();
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         params.append(key, value.toString());
       }
     });
-    
+
     return apiClient.get(`/sellers/${sellerId}/listings?${params.toString()}`);
   },
 
   // Get seller reviews
-  getSellerReviews: (sellerId: string, page: number = 1, limit: number = 10): Promise<{
+  getSellerReviews: (
+    sellerId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{
     reviews: SellerReview[];
     pagination: any;
   }> => {

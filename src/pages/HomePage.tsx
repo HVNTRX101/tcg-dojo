@@ -1,28 +1,28 @@
-import { useState, useMemo } from "react";
-import { SearchAndFilter } from "../components/SearchAndFilter";
-import { ProductGrid } from "../components/ProductGrid";
-import { CardDetailModal } from "../components/CardDetailModal";
-import { SellerProfileModal } from "../components/SellerProfileModal";
-import { GameNavigation } from "../components/GameNavigation";
-import { Breadcrumbs } from "../components/Breadcrumbs";
-import { HeroSection } from "../components/HeroSection";
-import { FilterSidebar } from "../components/FilterSidebar";
-import { Button } from "../components/ui/button";
-import { SlidersHorizontal, X } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { Product } from "../types/product.types";
-import { MOCK_CARDS } from "../mocks/products";
-import { PRICE_RANGE, SIDEBAR_CONFIG } from "../constants";
+import { useState, useMemo } from 'react';
+import { SearchAndFilter } from '../components/SearchAndFilter';
+import { ProductGrid } from '../components/ProductGrid';
+import { CardDetailModal } from '../components/CardDetailModal';
+import { SellerProfileModal } from '../components/SellerProfileModal';
+import { GameNavigation } from '../components/GameNavigation';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { HeroSection } from '../components/HeroSection';
+import { FilterSidebar } from '../components/FilterSidebar';
+import { Button } from '../components/ui/button';
+import { SlidersHorizontal, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Product } from '../types/product.types';
+import { MOCK_CARDS } from '../mocks/products';
+import { PRICE_RANGE, SIDEBAR_CONFIG } from '../constants';
 
 export default function HomePage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGame, setSelectedGame] = useState("all");
-  const [selectedSet, setSelectedSet] = useState("all");
-  const [selectedRarity, setSelectedRarity] = useState("all");
-  const [selectedCondition, setSelectedCondition] = useState("all");
-  const [selectedFinish, setSelectedFinish] = useState("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGame, setSelectedGame] = useState('all');
+  const [selectedSet, setSelectedSet] = useState('all');
+  const [selectedRarity, setSelectedRarity] = useState('all');
+  const [selectedCondition, setSelectedCondition] = useState('all');
+  const [selectedFinish, setSelectedFinish] = useState('all');
   const [priceRange, setPriceRange] = useState<[number, number]>(PRICE_RANGE.DEFAULT);
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState('name');
   const [selectedCard, setSelectedCard] = useState<Product | null>(null);
   const [selectedSeller, setSelectedSeller] = useState<string | null>(null);
   const [isCardDetailOpen, setIsCardDetailOpen] = useState(false);
@@ -42,35 +42,43 @@ export default function HomePage() {
 
   // Filter and sort cards
   const filteredAndSortedCards = useMemo(() => {
-    let filtered = MOCK_CARDS.filter(card => {
-      const matchesSearch = card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           card.set.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           card.seller.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesGame = selectedGame === "all" || card.game === selectedGame;
-      const matchesSet = selectedSet === "all" || card.set === selectedSet;
-      const matchesRarity = selectedRarity === "all" || card.rarity === selectedRarity;
-      const matchesCondition = selectedCondition === "all" || card.condition === selectedCondition;
-      const matchesFinish = selectedFinish === "all" || card.finish === selectedFinish;
+    const filtered = MOCK_CARDS.filter(card => {
+      const matchesSearch =
+        card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        card.set.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        card.seller.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesGame = selectedGame === 'all' || card.game === selectedGame;
+      const matchesSet = selectedSet === 'all' || card.set === selectedSet;
+      const matchesRarity = selectedRarity === 'all' || card.rarity === selectedRarity;
+      const matchesCondition = selectedCondition === 'all' || card.condition === selectedCondition;
+      const matchesFinish = selectedFinish === 'all' || card.finish === selectedFinish;
       const matchesPrice = card.price >= priceRange[0] && card.price <= priceRange[1];
-      
-      return matchesSearch && matchesGame && matchesSet && matchesRarity && 
-             matchesCondition && matchesFinish && matchesPrice;
+
+      return (
+        matchesSearch &&
+        matchesGame &&
+        matchesSet &&
+        matchesRarity &&
+        matchesCondition &&
+        matchesFinish &&
+        matchesPrice
+      );
     });
 
     // Sort cards
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case "name":
+        case 'name':
           return a.name.localeCompare(b.name);
-        case "name-desc":
+        case 'name-desc':
           return b.name.localeCompare(a.name);
-        case "price":
+        case 'price':
           return a.price - b.price;
-        case "price-desc":
+        case 'price-desc':
           return b.price - a.price;
-        case "set":
+        case 'set':
           return a.set.localeCompare(b.set);
-        case "rarity":
+        case 'rarity':
           return a.rarity.localeCompare(b.rarity);
         default:
           return 0;
@@ -78,7 +86,16 @@ export default function HomePage() {
     });
 
     return filtered;
-  }, [searchTerm, selectedGame, selectedSet, selectedRarity, selectedCondition, selectedFinish, priceRange, sortBy]);
+  }, [
+    searchTerm,
+    selectedGame,
+    selectedSet,
+    selectedRarity,
+    selectedCondition,
+    selectedFinish,
+    priceRange,
+    sortBy,
+  ]);
 
   const handleViewDetails = (card: Product) => {
     setSelectedCard(card);
@@ -94,7 +111,7 @@ export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <GameNavigation selectedGame={selectedGame} onGameSelect={setSelectedGame} />
-      
+
       <div className="flex gap-6">
         {/* Left Sidebar - Filters */}
         <AnimatePresence mode="wait">
@@ -103,7 +120,7 @@ export default function HomePage() {
               initial={{ opacity: 0, x: SIDEBAR_CONFIG.ANIMATION_OFFSET, width: 0 }}
               animate={{ opacity: 1, x: 0, width: SIDEBAR_CONFIG.WIDTH }}
               exit={{ opacity: 0, x: SIDEBAR_CONFIG.ANIMATION_OFFSET, width: 0 }}
-              transition={{ duration: SIDEBAR_CONFIG.ANIMATION_DURATION, ease: "easeInOut" }}
+              transition={{ duration: SIDEBAR_CONFIG.ANIMATION_DURATION, ease: 'easeInOut' }}
               className="hidden lg:block flex-shrink-0 overflow-hidden"
             >
               <FilterSidebar
@@ -128,11 +145,11 @@ export default function HomePage() {
         {/* Right Content - Products */}
         <main className="flex-1 min-w-0">
           <HeroSection cards={MOCK_CARDS} />
-          
+
           {/* Filter Toggle Button */}
           <div className="mb-6">
             <Button
-              variant={isSidebarOpen ? "default" : "outline"}
+              variant={isSidebarOpen ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="gap-2 dark:neon-border transition-all duration-300 hidden lg:flex"
@@ -150,14 +167,14 @@ export default function HomePage() {
               )}
             </Button>
           </div>
-          
-          <Breadcrumbs 
+
+          <Breadcrumbs
             items={[
               { label: 'Products', href: '#' },
-              { label: selectedGame !== 'all' ? selectedGame : 'All Games' }
+              { label: selectedGame !== 'all' ? selectedGame : 'All Games' },
             ]}
           />
-          
+
           <div className="mb-8">
             <h1 className="mb-2">TCG Marketplace</h1>
             <p className="text-muted-foreground">
@@ -191,10 +208,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <ProductGrid 
-            products={filteredAndSortedCards} 
-            onViewDetails={handleViewDetails}
-          />
+          <ProductGrid products={filteredAndSortedCards} onViewDetails={handleViewDetails} />
         </main>
       </div>
 

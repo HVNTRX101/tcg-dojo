@@ -5,6 +5,8 @@
  * and tracking application errors in a consistent manner.
  */
 
+import * as Sentry from '@sentry/react';
+
 export interface ErrorLogData {
   message: string;
   stack?: string;
@@ -37,28 +39,42 @@ export interface ApiErrorLogData extends Omit<ErrorLogData, 'componentStack'> {
  */
 export function logErrorToService(errorData: ErrorLogData): void {
   // Only log in production or if explicitly enabled
-  const shouldLog = import.meta.env.PROD || import.meta.env.VITE_ENABLE_ERROR_LOGGING === 'true';
+  const shouldLog = import.meta.env.PROD || import.meta.env.VITE_ENABLE_ERROR_REPORTING === 'true';
 
   if (shouldLog) {
-    // Example: Send to Sentry
-    // if (window.Sentry) {
-    //   window.Sentry.captureException(new Error(errorData.message), {
-    //     level: 'error',
-    //     tags: {
-    //       errorLevel: errorData.level,
-    //     },
-    //     extra: errorData,
-    //   });
-    // }
+    // Send to Sentry
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      // Sanitize error data before sending
+      const sanitizedData = sanitizeErrorData(errorData);
 
-    // Example: Send to custom API endpoint
-    // fetch('/api/errors', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(errorData),
-    // }).catch(err => console.error('Failed to log error:', err));
+      // Create error object with stack trace if available
+      const error = new Error(sanitizedData.message);
+      if (sanitizedData.stack) {
+        error.stack = sanitizedData.stack;
+      }
 
-    // For now, just log to console in a structured way
+      // Capture exception with Sentry
+      Sentry.captureException(error, {
+        level: 'error',
+        tags: {
+          errorLevel: sanitizedData.level,
+          url: sanitizedData.url,
+        },
+        contexts: {
+          errorDetails: {
+            timestamp: sanitizedData.timestamp,
+            userAgent: sanitizedData.userAgent,
+            componentStack: sanitizedData.componentStack,
+          },
+        },
+        extra: {
+          metadata: sanitizedData.metadata,
+        },
+        user: sanitizedData.userId ? { id: sanitizedData.userId } : undefined,
+      });
+    }
+
+    // Also log to console in a structured way
     console.error('Error logged to service:', errorData);
   } else {
     // In development, just log to console
@@ -127,7 +143,7 @@ export function logComponentError(
  */
 export function setupGlobalErrorHandlers(): void {
   // Handle uncaught errors
-  window.addEventListener('error', (event) => {
+  window.addEventListener('error', event => {
     const errorData: ErrorLogData = {
       message: event.message,
       stack: event.error?.stack,
@@ -146,7 +162,7 @@ export function setupGlobalErrorHandlers(): void {
   });
 
   // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener('unhandledrejection', event => {
     const errorData: ErrorLogData = {
       message: event.reason?.message || String(event.reason),
       stack: event.reason?.stack,
@@ -187,4 +203,75 @@ export function sanitizeErrorData(data: any): any {
   }
 
   return data;
+}
+
+/**
+ * Set user context for error tracking
+ */
+export function setUserContext(userId: string, email?: string, username?: string): void {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.setUser({
+      id: userId,
+      email,
+      username,
+    });
+  }
+}
+
+/**
+ * Clear user context (e.g., on logout)
+ */
+export function clearUserContext(): void {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.setUser(null);
+  }
+}
+
+/**
+ * Add breadcrumb for tracking user actions
+ */
+export function addBreadcrumb(
+  message: string,
+  category: string,
+  level: 'debug' | 'info' | 'warning' | 'error' = 'info',
+  data?: Record<string, any>
+): void {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.addBreadcrumb({
+      message,
+      category,
+      level,
+      data: data ? sanitizeErrorData(data) : undefined,
+    });
+  }
+}
+
+/**
+ * Set custom tag for error filtering
+ */
+export function setTag(key: string, value: string): void {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.setTag(key, value);
+  }
+}
+
+/**
+ * Set custom context for errors
+ */
+export function setContext(name: string, context: Record<string, any>): void {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.setContext(name, sanitizeErrorData(context));
+  }
+}
+
+/**
+ * Capture a message (non-error event)
+ */
+export function captureMessage(
+  message: string,
+  level: 'debug' | 'info' | 'warning' | 'error' = 'info'
+): void {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.captureMessage(message, level);
+  }
 }

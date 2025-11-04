@@ -34,14 +34,14 @@ export function PriceTicker({ cards }: PriceTickerProps) {
         <motion.div
           className="flex gap-8"
           animate={{
-            x: [0, -100 * tickerCards.length / 3],
+            x: [0, (-100 * tickerCards.length) / 3],
           }}
           transition={{
             x: {
               repeat: Infinity,
-              repeatType: "loop",
+              repeatType: 'loop',
               duration: ANIMATION_DURATION.TICKER_SCROLL,
-              ease: "linear",
+              ease: 'linear',
             },
           }}
         >
@@ -74,14 +74,10 @@ function TickerItem({ name, price, change, isPositive }: TickerItemProps) {
   return (
     <div className="flex items-center gap-3 whitespace-nowrap min-w-fit">
       {/* Card name */}
-      <span className="font-medium text-white/90 max-w-[180px] truncate">
-        {name}
-      </span>
+      <span className="font-medium text-white/90 max-w-[180px] truncate">{name}</span>
 
       {/* Price */}
-      <span className="text-white/70">
-        ${price.toFixed(2)}
-      </span>
+      <span className="text-white/70">${price.toFixed(2)}</span>
 
       {/* Price change indicator */}
       <motion.div
@@ -98,13 +94,10 @@ function TickerItem({ name, price, change, isPositive }: TickerItemProps) {
           repeatDelay: 3,
         }}
       >
-        {isPositive ? (
-          <TrendingUp className="h-3 w-3" />
-        ) : (
-          <TrendingDown className="h-3 w-3" />
-        )}
+        {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
         <span className="text-xs font-medium">
-          {isPositive ? '+' : '-'}{change.toFixed(1)}%
+          {isPositive ? '+' : '-'}
+          {change.toFixed(1)}%
         </span>
       </motion.div>
 

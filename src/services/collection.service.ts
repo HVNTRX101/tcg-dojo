@@ -35,23 +35,26 @@ export const collectionService = {
   // Get user's collection
   getCollection: (filters: CollectionFilters = {}): Promise<CollectionItem[]> => {
     const params = new URLSearchParams();
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         params.append(key, value.toString());
       }
     });
-    
+
     return apiClient.get(`/collection?${params.toString()}`);
   },
 
   // Add card to collection
-  addToCollection: (productId: string, data: {
-    quantity?: number;
-    condition?: string;
-    finish?: string;
-    notes?: string;
-  } = {}): Promise<CollectionItem> => {
+  addToCollection: (
+    productId: string,
+    data: {
+      quantity?: number;
+      condition?: string;
+      finish?: string;
+      notes?: string;
+    } = {}
+  ): Promise<CollectionItem> => {
     return apiClient.post('/collection/items', {
       productId,
       ...data,
@@ -59,12 +62,15 @@ export const collectionService = {
   },
 
   // Update collection item
-  updateCollectionItem: (itemId: string, data: {
-    quantity?: number;
-    condition?: string;
-    finish?: string;
-    notes?: string;
-  }): Promise<CollectionItem> => {
+  updateCollectionItem: (
+    itemId: string,
+    data: {
+      quantity?: number;
+      condition?: string;
+      finish?: string;
+      notes?: string;
+    }
+  ): Promise<CollectionItem> => {
     return apiClient.patch(`/collection/items/${itemId}`, data);
   },
 
@@ -89,7 +95,7 @@ export const collectionService = {
   importCollection: (file: File): Promise<{ imported: number; errors: string[] }> => {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     return apiClient.post('/collection/import', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

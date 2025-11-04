@@ -1,9 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Star, TrendingUp, Package, MessageSquare, Award } from "lucide-react";
-import { Progress } from "./ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Star, TrendingUp, Package, MessageSquare, Award } from 'lucide-react';
+import { Progress } from './ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 
 interface SellerProfileModalProps {
   sellerName: string | null;
@@ -22,44 +22,45 @@ interface SellerReview {
 
 const SELLER_REVIEWS: SellerReview[] = [
   {
-    id: "1",
-    userName: "CardMaster2000",
+    id: '1',
+    userName: 'CardMaster2000',
     rating: 5,
-    date: "2025-10-12",
-    comment: "Amazing seller! Cards always arrive in perfect condition. Very responsive to messages.",
-    cardName: "Lightning Bolt"
+    date: '2025-10-12',
+    comment:
+      'Amazing seller! Cards always arrive in perfect condition. Very responsive to messages.',
+    cardName: 'Lightning Bolt',
   },
   {
-    id: "2",
-    userName: "MTGCollector",
+    id: '2',
+    userName: 'MTGCollector',
     rating: 5,
-    date: "2025-10-10",
-    comment: "Great prices and fast shipping. One of my go-to sellers for vintage cards.",
-    cardName: "Black Lotus"
+    date: '2025-10-10',
+    comment: 'Great prices and fast shipping. One of my go-to sellers for vintage cards.',
+    cardName: 'Black Lotus',
   },
   {
-    id: "3",
-    userName: "TradingCardPro",
+    id: '3',
+    userName: 'TradingCardPro',
     rating: 4,
-    date: "2025-10-08",
-    comment: "Good experience overall. Card condition was accurately described.",
-    cardName: "Tarmogoyf"
+    date: '2025-10-08',
+    comment: 'Good experience overall. Card condition was accurately described.',
+    cardName: 'Tarmogoyf',
   },
   {
-    id: "4",
-    userName: "DeckBuilder99",
+    id: '4',
+    userName: 'DeckBuilder99',
     rating: 5,
-    date: "2025-10-05",
-    comment: "Excellent packaging and communication. Highly recommend!",
-    cardName: "Force of Will"
+    date: '2025-10-05',
+    comment: 'Excellent packaging and communication. Highly recommend!',
+    cardName: 'Force of Will',
   },
   {
-    id: "5",
-    userName: "VintageHunter",
+    id: '5',
+    userName: 'VintageHunter',
     rating: 5,
-    date: "2025-10-03",
-    comment: "Best seller on the platform. Always has rare finds at fair prices.",
-    cardName: "Mox Sapphire"
+    date: '2025-10-03',
+    comment: 'Best seller on the platform. Always has rare finds at fair prices.',
+    cardName: 'Mox Sapphire',
   },
 ];
 
@@ -164,7 +165,7 @@ export function SellerProfileModal({ sellerName, open, onOpenChange }: SellerPro
 
             <TabsContent value="reviews" className="space-y-4">
               <div className="space-y-3">
-                {SELLER_REVIEWS.map((review) => (
+                {SELLER_REVIEWS.map(review => (
                   <div key={review.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
@@ -197,7 +198,7 @@ export function SellerProfileModal({ sellerName, open, onOpenChange }: SellerPro
 
             <TabsContent value="ratings" className="space-y-4">
               <div className="space-y-3">
-                {ratingDistribution.map((item) => (
+                {ratingDistribution.map(item => (
                   <div key={item.stars} className="flex items-center gap-3">
                     <div className="flex items-center gap-1 w-16">
                       <span className="text-sm">{item.stars}</span>
@@ -225,7 +226,9 @@ export function SellerProfileModal({ sellerName, open, onOpenChange }: SellerPro
                   <div>
                     <p className="text-muted-foreground">Positive Feedback</p>
                     <p className="mt-1">
-                      <span className="text-green-600" style={{ fontSize: '1.5rem' }}>99.4%</span>
+                      <span className="text-green-600" style={{ fontSize: '1.5rem' }}>
+                        99.4%
+                      </span>
                     </p>
                   </div>
                 </div>
