@@ -184,12 +184,7 @@ export function FilterSidebar({
             </CollapsibleTrigger>
 
             <CollapsibleContent className="px-3 pb-3">
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="space-y-4 pt-4"
-              >
+              <div className="space-y-4 pt-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">${priceRange[0]}</span>
                   <span className="text-muted-foreground">${priceRange[1]}</span>
@@ -202,7 +197,7 @@ export function FilterSidebar({
                   step={PRICE_RANGE.STEP}
                   className="dark:[&_[role=slider]]:bg-[#E85002] dark:[&_[role=slider]]:border-[#E85002]"
                 />
-              </motion.div>
+              </div>
             </CollapsibleContent>
           </Collapsible>
 
@@ -234,10 +229,7 @@ export function FilterSidebar({
                 </CollapsibleTrigger>
 
                 <CollapsibleContent className="px-3 pb-3">
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
+                  <div
                     className="space-y-3 pt-3 overflow-y-auto"
                     style={{ maxHeight: `${FILTER_CONFIG.ITEMS_MAX_HEIGHT}px` }}
                   >
@@ -261,7 +253,7 @@ export function FilterSidebar({
                         </Label>
                       </motion.div>
                     ))}
-                  </motion.div>
+                  </div>
                 </CollapsibleContent>
               </Collapsible>
             );
