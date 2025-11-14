@@ -225,6 +225,39 @@ export const addTrackingNumber = async (
 };
 
 /**
+ * Restore product inventory when order is cancelled
+ */
+export const restoreInventory = async (orderId: string) => {
+  try {
+    // Get all order items
+    const orderItems = await prisma.orderItem.findMany({
+      where: { orderId },
+      select: {
+        productId: true,
+        quantity: true,
+      },
+    });
+
+    // Restore inventory for each product
+    for (const item of orderItems) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          quantity: {
+            increment: item.quantity,
+          },
+        },
+      });
+    }
+
+    console.log(`✅ Restored inventory for order ${orderId.substring(0, 8)} (${orderItems.length} items)`);
+  } catch (error) {
+    console.error('Error restoring inventory:', error);
+    throw error;
+  }
+};
+
+/**
  * Cancel order with reason
  */
 export const cancelOrder = async (
@@ -275,7 +308,9 @@ export const cancelOrder = async (
     );
 
     // TODO: Process refund if payment was completed
-    // TODO: Restore product inventory
+
+    // Restore product inventory
+    await restoreInventory(orderId);
 
     return updatedOrder;
   } catch (error) {
