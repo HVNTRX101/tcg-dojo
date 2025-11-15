@@ -69,6 +69,10 @@
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.18.3",
     "winston-daily-rotate-file": "^5.0.0",
+    "winston-cloudwatch": "^6.3.0",
+    "aws-sdk": "^2.1691.0",
+    "nodemailer": "^7.0.10",
+    "prom-client": "^15.1.3",
     "xss-clean": "^0.1.4",
     "zod": "^3.23.8"
   },

@@ -1,10 +1,12 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
+import { createCloudWatchTransport, getCloudWatchConfig } from './cloudwatch';
 
 /**
  * Winston Logger Configuration
  * Comprehensive logging with file rotation and multiple transports
+ * Now includes CloudWatch integration for centralized logging
  */
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
@@ -94,6 +96,14 @@ transports.push(
     ),
   })
 );
+
+// CloudWatch transport (if enabled)
+const cloudWatchConfig = getCloudWatchConfig();
+const cloudWatchTransport = createCloudWatchTransport(cloudWatchConfig);
+if (cloudWatchTransport) {
+  transports.push(cloudWatchTransport);
+  console.log('CloudWatch logging enabled');
+}
 
 // Create logger instance
 export const logger = winston.createLogger({
