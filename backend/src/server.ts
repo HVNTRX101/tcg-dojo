@@ -47,6 +47,7 @@ import adminProductRoutes from './routes/adminProductRoutes';
 import adminOrderRoutes from './routes/adminOrderRoutes';
 import adminAnalyticsRoutes from './routes/adminAnalyticsRoutes';
 import sellerAnalyticsRoutes from './routes/sellerAnalyticsRoutes';
+import healthRoutes from './routes/health.routes';
 import prisma from './config/database';
 import { initializeRedis, closeRedis } from './config/redis';
 import { sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
@@ -133,14 +134,8 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check (no rate limiting)
-app.get('/health', (_req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: config.nodeEnv,
-  });
-});
+// Health check and monitoring routes (no rate limiting)
+app.use(healthRoutes);
 
 // Swagger API Documentation (no rate limiting for better DX)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {

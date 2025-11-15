@@ -1,10 +1,12 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+import WinstonCloudWatch from 'winston-cloudwatch';
 import path from 'path';
 
 /**
  * Winston Logger Configuration
  * Comprehensive logging with file rotation and multiple transports
+ * Supports CloudWatch for centralized cloud logging
  */
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
@@ -94,6 +96,49 @@ transports.push(
     ),
   })
 );
+
+// CloudWatch transport for production
+if (
+  process.env.NODE_ENV === 'production' &&
+  process.env.AWS_REGION &&
+  process.env.CLOUDWATCH_LOG_GROUP
+) {
+  transports.push(
+    new WinstonCloudWatch({
+      logGroupName: process.env.CLOUDWATCH_LOG_GROUP,
+      logStreamName: `${process.env.CLOUDWATCH_LOG_STREAM || 'app'}-${new Date().toISOString().split('T')[0]}`,
+      awsRegion: process.env.AWS_REGION,
+      messageFormatter: (log: any) => {
+        return JSON.stringify({
+          level: log.level,
+          message: log.message,
+          timestamp: log.timestamp,
+          ...log.meta,
+        });
+      },
+      retentionInDays: 30,
+    })
+  );
+}
+
+// ELK/Elasticsearch transport configuration (optional)
+// If using ELK stack, uncomment and install 'winston-elasticsearch'
+// import { ElasticsearchTransport } from 'winston-elasticsearch';
+// if (process.env.ELASTICSEARCH_NODE) {
+//   transports.push(
+//     new ElasticsearchTransport({
+//       level: 'info',
+//       clientOpts: {
+//         node: process.env.ELASTICSEARCH_NODE,
+//         auth: {
+//           username: process.env.ELASTICSEARCH_USERNAME || '',
+//           password: process.env.ELASTICSEARCH_PASSWORD || '',
+//         },
+//       },
+//       index: 'tcg-marketplace-logs',
+//     })
+//   );
+// }
 
 // Create logger instance
 export const logger = winston.createLogger({

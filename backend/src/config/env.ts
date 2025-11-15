@@ -40,4 +40,25 @@ export const config = {
     apiSecret: process.env.CLOUDINARY_API_SECRET || '',
     folder: process.env.CLOUDINARY_FOLDER || 'tcg-marketplace',
   },
+  logging: {
+    level: process.env.LOG_LEVEL || 'info',
+    cloudwatch: {
+      enabled: process.env.CLOUDWATCH_ENABLED === 'true',
+      logGroup: process.env.CLOUDWATCH_LOG_GROUP || '',
+      logStream: process.env.CLOUDWATCH_LOG_STREAM || 'app',
+      region: process.env.AWS_REGION || 'us-east-1',
+    },
+    elasticsearch: {
+      enabled: process.env.ELASTICSEARCH_ENABLED === 'true',
+      node: process.env.ELASTICSEARCH_NODE || '',
+      username: process.env.ELASTICSEARCH_USERNAME || '',
+      password: process.env.ELASTICSEARCH_PASSWORD || '',
+    },
+  },
+  alerting: {
+    enabled: process.env.ALERTING_ENABLED === 'true',
+    webhookUrl: process.env.ALERT_WEBHOOK_URL || '',
+    slackWebhook: process.env.SLACK_WEBHOOK_URL || '',
+    emailRecipients: process.env.ALERT_EMAIL_RECIPIENTS || '',
+  },
 };
