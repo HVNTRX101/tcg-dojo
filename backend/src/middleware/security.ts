@@ -1,7 +1,9 @@
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
 import mongoSanitize from 'express-mongo-sanitize';
 import { Request, Response, NextFunction } from 'express';
+import { getRedisClient, isRedisConnected } from '../config/redis';
 
 /**
  * Security Headers Middleware
@@ -36,10 +38,33 @@ export const securityHeaders = helmet({
 
 /**
  * Rate Limiting Configurations
+ * Uses Redis for distributed rate limiting when available
+ * Falls back to in-memory store if Redis is unavailable
  */
+
+/**
+ * Get Redis store configuration for rate limiting
+ * Returns undefined if Redis is not connected (falls back to memory store)
+ */
+function getRedisStore(prefix: string) {
+  try {
+    const redisClient = getRedisClient();
+    if (redisClient && isRedisConnected()) {
+      return new RedisStore({
+        // @ts-expect-error - RedisStore accepts ioredis client
+        client: redisClient,
+        prefix: `rl:${prefix}:`,
+      });
+    }
+  } catch (error) {
+    console.warn(`Failed to initialize Redis store for ${prefix}, falling back to memory store:`, error);
+  }
+  return undefined;
+}
 
 // General API rate limit - 100 requests per 15 minutes
 export const generalLimiter = rateLimit({
+  store: getRedisStore('general'),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
@@ -56,6 +81,7 @@ export const generalLimiter = rateLimit({
 
 // Authentication rate limit - 5 attempts per 15 minutes
 export const authLimiter = rateLimit({
+  store: getRedisStore('auth'),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // Limit each IP to 5 login/register requests per windowMs
   message: 'Too many authentication attempts, please try again later.',
@@ -71,6 +97,7 @@ export const authLimiter = rateLimit({
 
 // Strict rate limit for sensitive operations - 3 per hour
 export const strictLimiter = rateLimit({
+  store: getRedisStore('strict'),
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3,
   message: 'Too many requests for this sensitive operation.',
@@ -85,6 +112,7 @@ export const strictLimiter = rateLimit({
 
 // API key/admin operations - 1000 per hour
 export const adminLimiter = rateLimit({
+  store: getRedisStore('admin'),
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 1000,
   message: 'Admin rate limit exceeded.',

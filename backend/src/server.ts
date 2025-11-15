@@ -51,6 +51,7 @@ import prisma from './config/database';
 import { initializeRedis, closeRedis } from './config/redis';
 import { sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
 import { logger } from './config/logger';
+import { HealthService } from './services/health.service';
 import {
   httpLogger,
   requestContextMiddleware,
@@ -133,13 +134,62 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check (no rate limiting)
-app.get('/health', (_req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: config.nodeEnv,
-  });
+// Initialize health service
+const healthService = new HealthService(prisma);
+
+// Health check endpoints (no rate limiting for monitoring tools)
+// Comprehensive health check with dependency validation
+app.get('/health', async (_req, res) => {
+  try {
+    const healthStatus = await healthService.checkHealth();
+
+    // Return appropriate HTTP status code based on health
+    const statusCode =
+      healthStatus.status === 'healthy' ? 200 :
+      healthStatus.status === 'degraded' ? 200 : // Still return 200 for degraded but warn in response
+      503; // Unhealthy - service unavailable
+
+    res.status(statusCode).json(healthStatus);
+  } catch (error) {
+    logger.error('Health check failed', { error });
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// Liveness probe (Kubernetes) - minimal check
+app.get('/health/live', async (_req, res) => {
+  try {
+    const isAlive = await healthService.checkLiveness();
+    res.status(isAlive ? 200 : 503).json({
+      status: isAlive ? 'alive' : 'dead',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'dead',
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Readiness probe (Kubernetes) - checks critical dependencies
+app.get('/health/ready', async (_req, res) => {
+  try {
+    const isReady = await healthService.checkReadiness();
+    res.status(isReady ? 200 : 503).json({
+      status: isReady ? 'ready' : 'not ready',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'not ready',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // Swagger API Documentation (no rate limiting for better DX)

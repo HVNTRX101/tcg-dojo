@@ -227,7 +227,7 @@ export const getUserStats = async (req: any, res: Response) => {
       totalUsers,
       verifiedUsers,
       unverifiedUsers: totalUsers - verifiedUsers,
-      usersByRole: usersByRole.reduce((acc: any, item) => {
+      usersByRole: usersByRole.reduce((acc: any, item: any) => {
         acc[item.role] = item._count.role;
         return acc;
       }, {}),
@@ -260,7 +260,7 @@ export const getSystemSettings = async (req: any, res: Response) => {
     });
 
     // Parse JSON values
-    const parsedSettings = settings.map((setting) => ({
+    const parsedSettings = settings.map((setting: any) => ({
       ...setting,
       value: setting.value ? JSON.parse(setting.value) : null,
     }));
@@ -413,7 +413,7 @@ export const getAdminLogs = async (req: any, res: Response) => {
     ]);
 
     // Parse JSON details
-    const parsedLogs = logs.map((log) => ({
+    const parsedLogs = logs.map((log: any) => ({
       ...log,
       details: log.details ? JSON.parse(log.details) : null,
     }));

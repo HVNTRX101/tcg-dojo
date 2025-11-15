@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express, { Express } from 'express';
 import { PrismaClient } from '@prisma/client';
-import authRoutes from '../../routes/auth.routes';
+import authRoutes from '../../routes/authRoutes';
 import { TestDataFactory } from '../../__tests__/helpers/factories';
 
 // Create a test app
