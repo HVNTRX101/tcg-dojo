@@ -6,6 +6,7 @@ import express, { Application } from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import { config } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { initializeWebSocket } from './services/websocket';
@@ -47,6 +48,8 @@ import adminProductRoutes from './routes/adminProductRoutes';
 import adminOrderRoutes from './routes/adminOrderRoutes';
 import adminAnalyticsRoutes from './routes/adminAnalyticsRoutes';
 import sellerAnalyticsRoutes from './routes/sellerAnalyticsRoutes';
+import gdprRoutes from './routes/gdprRoutes';
+import databaseMonitoringRoutes from './routes/databaseMonitoringRoutes';
 import prisma from './config/database';
 import { initializeRedis, closeRedis } from './config/redis';
 import { sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
@@ -58,6 +61,7 @@ import {
   performanceMonitoringMiddleware,
   setupDatabaseLogging,
 } from './middleware/logging';
+import { setupDatabasePerformanceMonitoring } from './middleware/databaseMonitoring';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 
@@ -85,6 +89,9 @@ const io = initializeWebSocket(httpServer);
 if (process.env.NODE_ENV !== 'production' || process.env.LOG_DB_QUERIES === 'true') {
   setupDatabaseLogging(prisma);
 }
+
+// Setup database performance monitoring (always enabled)
+setupDatabasePerformanceMonitoring(prisma);
 
 // Trust proxy - Important for rate limiting and security when behind load balancer/nginx
 app.set('trust proxy', 1);
@@ -132,6 +139,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Health check (no rate limiting)
 app.get('/health', (_req, res) => {
@@ -178,6 +186,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/user/settings', userSettingsRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/social', socialRoutes);
+app.use('/api/gdpr', gdprRoutes); // GDPR compliance endpoints
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/comments', commentRoutes);
 
@@ -187,6 +196,7 @@ app.use('/api/admin', adminLimiter, adminProductRoutes);
 app.use('/api/admin', adminLimiter, adminOrderRoutes);
 app.use('/api/admin/analytics', adminLimiter, adminAnalyticsRoutes);
 app.use('/api/seller/analytics', sellerAnalyticsRoutes);
+app.use('/api/database', adminLimiter, databaseMonitoringRoutes); // Database monitoring endpoints
 
 // 404 handler
 app.use('*', (req, res) => {

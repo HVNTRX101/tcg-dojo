@@ -17,17 +17,14 @@ const api: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Send cookies with requests
 });
 
-// Request interceptor to add auth token
-// SECURITY WARNING: localStorage is vulnerable to XSS attacks.
-// For production, consider using HttpOnly cookies for token storage.
+// Request interceptor
+// NOTE: Authentication now uses HttpOnly cookies (sent automatically by browser)
+// No need to manually add Authorization headers
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   error => {
@@ -48,9 +45,7 @@ api.interceptors.response.use(
 
     // Handle 401 Unauthorized
     if (status === 401) {
-      // Clear auth token and redirect to login
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken');
+      // Redirect to login (cookies are cleared by backend on logout)
       // TODO: Replace with React Router navigate() for better SPA behavior
       // Using window.location as temporary solution - causes full page reload
       window.location.href = '/signin';
@@ -97,21 +92,27 @@ export const apiClient = {
 };
 
 // Auth token management
-// SECURITY WARNING: localStorage is vulnerable to XSS attacks.
-// For production applications, consider:
-// 1. Using HttpOnly cookies for token storage (prevents JavaScript access)
-// 2. Implementing Content Security Policy (CSP) headers
-// 3. Sanitizing all user inputs to prevent XSS
+// NOTE: Tokens are now stored in HttpOnly cookies (managed by backend)
+// These utilities are deprecated but kept for backward compatibility
+// MIGRATION: Please update your code to use cookie-based authentication
 export const authToken = {
-  get: () => localStorage.getItem('authToken'),
-  set: (token: string) => localStorage.setItem('authToken', token),
-  remove: () => localStorage.removeItem('authToken'),
+  get: () => null, // Tokens are in HttpOnly cookies (not accessible via JS)
+  set: (_token: string) => {
+    console.warn('authToken.set() is deprecated. Tokens are now managed via HttpOnly cookies.');
+  },
+  remove: () => {
+    console.warn('authToken.remove() is deprecated. Use the /logout endpoint instead.');
+  },
 };
 
 export const refreshToken = {
-  get: () => localStorage.getItem('refreshToken'),
-  set: (token: string) => localStorage.setItem('refreshToken', token),
-  remove: () => localStorage.removeItem('refreshToken'),
+  get: () => null, // Tokens are in HttpOnly cookies (not accessible via JS)
+  set: (_token: string) => {
+    console.warn('refreshToken.set() is deprecated. Tokens are now managed via HttpOnly cookies.');
+  },
+  remove: () => {
+    console.warn('refreshToken.remove() is deprecated. Use the /logout endpoint instead.');
+  },
 };
 
 export default api;

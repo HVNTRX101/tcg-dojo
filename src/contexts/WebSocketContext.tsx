@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { websocketService } from '../services/websocket.service';
 import { useAuth } from '../hooks/useAuth';
-import { authToken } from '../services/api';
 import { toast } from 'sonner';
 
 interface WebSocketContextValue {
@@ -56,9 +55,8 @@ export function WebSocketProvider({
 
   // Connect to WebSocket when user is authenticated
   useEffect(() => {
-    const token = authToken.get();
-    if (user && token) {
-      websocketService.connect(token);
+    if (user) {
+      websocketService.connect();
 
       // Set up event handlers
       websocketService.setEventHandlers({

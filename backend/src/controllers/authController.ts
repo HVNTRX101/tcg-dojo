@@ -17,6 +17,7 @@ import {
   isTokenExpired
 } from '../utils/authUtils';
 import { config } from '../config/env';
+import { setAccessTokenCookie, setRefreshTokenCookie, clearAuthCookies } from '../utils/cookies';
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   const { email, password, name } = req.body as SignupInput;
@@ -79,10 +80,12 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     role: user.role,
   });
 
+  // Set HttpOnly cookies (secure authentication)
+  setAccessTokenCookie(res, accessToken);
+  setRefreshTokenCookie(res, refreshToken);
+
   res.status(201).json({
     user,
-    accessToken,
-    refreshToken,
     message: 'Account created successfully. Please check your email to verify your account.',
   });
 };
@@ -115,6 +118,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     role: user.role,
   });
 
+  // Set HttpOnly cookies (secure authentication)
+  setAccessTokenCookie(res, accessToken);
+  setRefreshTokenCookie(res, refreshToken);
+
   res.json({
     user: {
       id: user.id,
@@ -123,13 +130,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       role: user.role,
       createdAt: user.createdAt,
     },
-    accessToken,
-    refreshToken,
   });
 };
 
 export const refresh = async (req: Request, res: Response): Promise<void> => {
-  const { refreshToken } = req.body as RefreshTokenInput;
+  // Read refresh token from cookie instead of request body
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    throw new AppError('No refresh token provided', 401);
+  }
 
   try {
     const payload = verifyRefreshToken(refreshToken);
@@ -156,9 +166,12 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
       role: user.role,
     });
 
+    // Set new HttpOnly cookies
+    setAccessTokenCookie(res, newAccessToken);
+    setRefreshTokenCookie(res, newRefreshToken);
+
     res.json({
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
+      message: 'Tokens refreshed successfully',
     });
   } catch (error) {
     throw new AppError('Invalid refresh token', 401);
@@ -429,4 +442,12 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
   }
 
   res.json({ message: 'Password reset successfully' });
+};
+
+/**
+ * Logout user by clearing auth cookies
+ */
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  clearAuthCookies(res);
+  res.json({ message: 'Logged out successfully' });
 };

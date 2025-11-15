@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 import { LoginCredentials, SignupCredentials, UserProfile } from '../types/user.types';
 import { AuthResponse } from '../types/user.types';
-import { authToken, refreshToken } from '../services/api';
 
 // Query keys
 export const authKeys = {
@@ -16,7 +15,8 @@ export const useCurrentUser = () => {
   return useQuery({
     queryKey: authKeys.user(),
     queryFn: () => authService.getCurrentUser(),
-    enabled: !!authToken.get(),
+    // Always enabled since we can't check HttpOnly cookies from JS
+    // Will return 401 if not authenticated
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error: any) => {
       if (error?.status === 401) {
@@ -31,7 +31,7 @@ export const useUserProfile = (userId?: string) => {
   return useQuery({
     queryKey: authKeys.profile(userId),
     queryFn: () => authService.getUserProfile(userId),
-    enabled: !!userId || !!authToken.get(),
+    enabled: !!userId, // Only check if userId is provided
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 };
@@ -43,10 +43,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (credentials: LoginCredentials) => authService.login(credentials),
     onSuccess: (data: AuthResponse) => {
-      // Store tokens
-      authToken.set(data.token);
-      refreshToken.set(data.refreshToken);
-
+      // Tokens are now stored in HttpOnly cookies by the server
       // Update user query cache
       queryClient.setQueryData(authKeys.user(), data.user);
 
@@ -65,10 +62,7 @@ export const useSignup = () => {
   return useMutation({
     mutationFn: (credentials: SignupCredentials) => authService.signup(credentials),
     onSuccess: (data: AuthResponse) => {
-      // Store tokens
-      authToken.set(data.token);
-      refreshToken.set(data.refreshToken);
-
+      // Tokens are now stored in HttpOnly cookies by the server
       // Update user query cache
       queryClient.setQueryData(authKeys.user(), data.user);
 
@@ -87,17 +81,12 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
-      // Clear tokens
-      authToken.remove();
-      refreshToken.remove();
-
+      // Cookies are cleared by the server
       // Clear all cached data
       queryClient.clear();
     },
     onError: () => {
       // Even if logout fails on server, clear local data
-      authToken.remove();
-      refreshToken.remove();
       queryClient.clear();
     },
   });

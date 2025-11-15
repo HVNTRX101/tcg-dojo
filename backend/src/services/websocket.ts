@@ -51,7 +51,27 @@ export const initializeWebSocket = (server: HTTPServer): SocketIOServer => {
   // Authentication middleware
   io.use(async (socket: AuthenticatedSocket, next) => {
     try {
-      const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
+      // Try to get token from multiple sources (in order of preference):
+      // 1. HttpOnly cookie (most secure)
+      // 2. Auth handshake (backwards compatibility)
+      // 3. Authorization header (backwards compatibility)
+      let token: string | undefined;
+
+      // Parse cookies from socket handshake
+      const cookies = socket.handshake.headers.cookie;
+      if (cookies) {
+        const cookieObj: Record<string, string> = {};
+        cookies.split(';').forEach(cookie => {
+          const [key, value] = cookie.trim().split('=');
+          cookieObj[key] = value;
+        });
+        token = cookieObj['accessToken'];
+      }
+
+      // Fallback to other methods
+      if (!token) {
+        token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
+      }
 
       if (!token) {
         return next(new Error('Authentication token required'));

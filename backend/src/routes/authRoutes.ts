@@ -3,6 +3,7 @@ import {
   signup,
   login,
   refresh,
+  logout,
   getProfile,
   verifyEmail,
   resendVerificationEmail,
@@ -25,6 +26,7 @@ const router = Router();
 router.post('/signup', validate(registerSchema), asyncHandler(signup));
 router.post('/login', validate(loginSchema), asyncHandler(login));
 router.post('/refresh', asyncHandler(refresh)); // Token refresh doesn't need body validation
+router.post('/logout', asyncHandler(logout)); // Clear auth cookies
 router.get('/profile', authenticate, asyncHandler(getProfile));
 
 // Email verification
