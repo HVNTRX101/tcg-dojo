@@ -50,6 +50,8 @@ import adminAnalyticsRoutes from './routes/adminAnalyticsRoutes';
 import sellerAnalyticsRoutes from './routes/sellerAnalyticsRoutes';
 import gdprRoutes from './routes/gdprRoutes';
 import databaseMonitoringRoutes from './routes/databaseMonitoringRoutes';
+import featureFlagsRoutes from './routes/featureFlagsRoutes';
+import pushNotificationRoutes from './routes/pushNotificationRoutes';
 import prisma from './config/database';
 import { initializeRedis, closeRedis } from './config/redis';
 import { sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
@@ -62,6 +64,7 @@ import {
   setupDatabaseLogging,
 } from './middleware/logging';
 import { setupDatabasePerformanceMonitoring } from './middleware/databaseMonitoring';
+import { apiVersionMiddleware } from './middleware/apiVersion';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 
@@ -140,6 +143,8 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+n// API Versioning
+app.use(apiVersionMiddleware);
 
 // Health check (no rate limiting)
 app.get('/health', (_req, res) => {
@@ -197,6 +202,8 @@ app.use('/api/admin', adminLimiter, adminOrderRoutes);
 app.use('/api/admin/analytics', adminLimiter, adminAnalyticsRoutes);
 app.use('/api/seller/analytics', sellerAnalyticsRoutes);
 app.use('/api/database', adminLimiter, databaseMonitoringRoutes); // Database monitoring endpoints
+app.use('/api/feature-flags', featureFlagsRoutes); // Feature flags management
+app.use('/api/push', pushNotificationRoutes); // Push notifications
 
 // 404 handler
 app.use('*', (req, res) => {
