@@ -67,7 +67,13 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "storybook": "^10.0.7",
+    "@storybook/react-vite": "^10.0.7",
+    "@chromatic-com/storybook": "^4.1.2",
+    "@storybook/addon-docs": "^10.0.7",
+    "@storybook/addon-onboarding": "^10.0.7",
+    "eslint-plugin-storybook": "^10.0.7"
   },
   "scripts": {
     "dev": "vite",
@@ -77,7 +83,9 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
     "type-check": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

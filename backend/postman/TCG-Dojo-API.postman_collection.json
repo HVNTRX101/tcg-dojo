@@ -1,0 +1,505 @@
+{
+  "info": {
+    "name": "TCG Dojo API",
+    "description": "Complete API collection for TCG Dojo marketplace platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Sign Up",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('userId', jsonData.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"name\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('userId', jsonData.user.id);",
+                  "    // Note: With HttpOnly cookies, tokens are stored in cookies",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password. Returns user info and sets HttpOnly cookies."
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            },
+            "description": "Get current user profile (requires authentication)"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout and clear authentication cookies"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refresh access token using refresh token from cookie"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=20&sortBy=createdAt&sortOrder=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "100",
+                  "disabled": true
+                },
+                {
+                  "key": "condition",
+                  "value": "MINT",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get paginated list of products with optional filters"
+          }
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", ":productId"],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                }
+              ]
+            },
+            "description": "Get detailed information about a specific product"
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search?q=charizard&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "charizard"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Search products by name, description, or tags"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Feature Flags",
+      "item": [
+        {
+          "name": "Get My Flags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/feature-flags/my-flags",
+              "host": ["{{baseUrl}}"],
+              "path": ["feature-flags", "my-flags"]
+            },
+            "description": "Get list of enabled feature flags for current user"
+          }
+        },
+        {
+          "name": "Check Flag",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/feature-flags/check/:flagKey",
+              "host": ["{{baseUrl}}"],
+              "path": ["feature-flags", "check", ":flagKey"],
+              "variable": [
+                {
+                  "key": "flagKey",
+                  "value": "new_checkout_flow"
+                }
+              ]
+            },
+            "description": "Check if a specific feature flag is enabled for current user"
+          }
+        },
+        {
+          "name": "[Admin] List All Flags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/feature-flags",
+              "host": ["{{baseUrl}}"],
+              "path": ["feature-flags"]
+            },
+            "description": "Get all feature flags (admin only)"
+          }
+        },
+        {
+          "name": "[Admin] Create Flag",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"new_feature\",\n  \"name\": \"New Feature\",\n  \"description\": \"Description of the new feature\",\n  \"enabled\": true,\n  \"targetType\": \"PERCENTAGE\",\n  \"targetValue\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/feature-flags",
+              "host": ["{{baseUrl}}"],
+              "path": ["feature-flags"]
+            },
+            "description": "Create a new feature flag (admin only)"
+          }
+        },
+        {
+          "name": "[Admin] Toggle Flag",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/feature-flags/:flagKey/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["feature-flags", ":flagKey", "toggle"],
+              "variable": [
+                {
+                  "key": "flagKey",
+                  "value": "new_checkout_flow"
+                }
+              ]
+            },
+            "description": "Toggle a feature flag on/off (admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Push Notifications",
+      "item": [
+        {
+          "name": "Get Public Key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/push/public-key",
+              "host": ["{{baseUrl}}"],
+              "path": ["push", "public-key"]
+            },
+            "description": "Get VAPID public key for push notification subscription"
+          }
+        },
+        {
+          "name": "Subscribe",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endpoint\": \"https://fcm.googleapis.com/fcm/send/...\",\n  \"keys\": {\n    \"p256dh\": \"...\",\n    \"auth\": \"...\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/push/subscribe",
+              "host": ["{{baseUrl}}"],
+              "path": ["push", "subscribe"]
+            },
+            "description": "Subscribe to push notifications"
+          }
+        },
+        {
+          "name": "Send Test",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["push", "test"]
+            },
+            "description": "Send a test push notification to current user"
+          }
+        },
+        {
+          "name": "Unsubscribe",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/push/unsubscribe",
+              "host": ["{{baseUrl}}"],
+              "path": ["push", "unsubscribe"]
+            },
+            "description": "Unsubscribe from push notifications"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GDPR",
+      "item": [
+        {
+          "name": "Export User Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gdpr/export",
+              "host": ["{{baseUrl}}"],
+              "path": ["gdpr", "export"]
+            },
+            "description": "Export all user data (GDPR Article 20 - Right to data portability)"
+          }
+        },
+        {
+          "name": "Request Account Deletion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gdpr/delete/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["gdpr", "delete", "request"]
+            },
+            "description": "Request account deletion and receive confirmation code"
+          }
+        },
+        {
+          "name": "Confirm Account Deletion",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"confirmationCode\": \"DELETE_user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/gdpr/delete/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["gdpr", "delete", "confirm"]
+            },
+            "description": "Confirm and execute account deletion (GDPR Article 17)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Database Monitoring",
+      "item": [
+        {
+          "name": "[Admin] Database Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/database/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["database", "health"]
+            },
+            "description": "Get comprehensive database health report (admin only)"
+          }
+        },
+        {
+          "name": "[Admin] Query Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/database/performance",
+              "host": ["{{baseUrl}}"],
+              "path": ["database", "performance"]
+            },
+            "description": "Get query performance statistics (admin only)"
+          }
+        },
+        {
+          "name": "[Admin] Slow Queries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/database/slow-queries?limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["database", "slow-queries"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get recent slow queries (admin only)"
+          }
+        }
+      ]
+    }
+  ]
+}

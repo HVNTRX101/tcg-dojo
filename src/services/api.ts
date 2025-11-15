@@ -45,10 +45,22 @@ api.interceptors.response.use(
 
     // Handle 401 Unauthorized
     if (status === 401) {
-      // Redirect to login (cookies are cleared by backend on logout)
-      // TODO: Replace with React Router navigate() for better SPA behavior
-      // Using window.location as temporary solution - causes full page reload
-      window.location.href = '/signin';
+      // Clear any stored data on unauthorized
+      // Redirect to login using router instead of window.location
+      // Note: This requires access to router navigate function
+      // Best practice: Use axios interceptor in a component with router access
+      // Or dispatch a Redux action to handle navigation
+      const event = new CustomEvent('auth:unauthorized', {
+        detail: { endpoint, method, status },
+      });
+      window.dispatchEvent(event);
+
+      // Fallback to window.location if event listener not set up
+      setTimeout(() => {
+        if (!event.defaultPrevented) {
+          window.location.href = '/signin';
+        }
+      }, 100);
     }
 
     // Create API error object
