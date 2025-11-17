@@ -29,6 +29,7 @@ import couponRoutes from './routes/couponRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import imageRoutes from './routes/imageRoutes';
 import priceHistoryRoutes from './routes/priceHistoryRoutes';
+import pricingRoutes from './routes/pricingRoutes';
 import searchRoutes from './routes/searchRoutes';
 import recommendationRoutes from './routes/recommendationRoutes';
 import sellerRoutes from './routes/sellerRoutes';
@@ -168,6 +169,7 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api', imageRoutes); // Image routes (includes /api/products/:productId/images)
 app.use('/api/price-history', priceHistoryRoutes);
+app.use('/api/prices', pricingRoutes); // Multi-source pricing service
 app.use('/api/search', searchRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/sellers', sellerRoutes);
