@@ -51,8 +51,10 @@ api.interceptors.response.use(
       // Clear auth token and redirect to login
       localStorage.removeItem('authToken');
       localStorage.removeItem('refreshToken');
-      // TODO: Replace with React Router navigate() for better SPA behavior
-      // Using window.location as temporary solution - causes full page reload
+      // NOTE: Using window.location instead of React Router navigate() because this
+      // interceptor runs outside React component context. A full reload on 401 is
+      // acceptable since it clears all in-memory state (a security benefit). To use
+      // navigate(), create a navigation singleton initialized in the router.
       window.location.href = '/signin';
     }
 

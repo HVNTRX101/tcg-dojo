@@ -1,5 +1,8 @@
 import prisma from '../config/database';
 import { createNotification, NotificationTypes } from '../controllers/notificationController';
+import { createRefund } from './paymentService';
+import { sendOrderShippedEmail, sendOrderDeliveredEmail } from './emailService';
+import { emitNotificationToUser } from './websocket';
 
 /**
  * Order Tracking Service
@@ -112,8 +115,38 @@ export const updateOrderStatus = async (
       );
     }
 
-    // TODO: Send email notification based on user preferences
-    // TODO: Emit WebSocket event for real-time update
+    // Send email notification for shipped/delivered statuses
+    try {
+      if (newStatus === 'SHIPPED') {
+        await sendOrderShippedEmail(order.user.email, {
+          orderNumber: orderId.substring(0, 8),
+          customerName: order.user.name || 'Customer',
+          trackingNumber: '', // Would come from shipping integration
+          trackingUrl: undefined,
+        });
+      } else if (newStatus === 'DELIVERED') {
+        await sendOrderDeliveredEmail(order.user.email, {
+          orderNumber: orderId.substring(0, 8),
+          customerName: order.user.name || 'Customer',
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send order status email:', emailError);
+      // Continue execution — email failure should not block status update
+    }
+
+    // Emit WebSocket event for real-time update
+    if (notificationMessages[newStatus]) {
+      const { title, message, type } = notificationMessages[newStatus];
+      emitNotificationToUser(order.userId, {
+        type,
+        title,
+        message,
+        link: `/orders/${orderId}`,
+        data: { orderId, oldStatus, newStatus },
+        createdAt: new Date().toISOString(),
+      });
+    }
 
     return updatedOrder;
   } catch (error) {
@@ -307,7 +340,23 @@ export const cancelOrder = async (
       { orderId, cancelReason }
     );
 
-    // TODO: Process refund if payment was completed
+    // Process refund if payment was completed
+    if (order.paymentStatus === 'COMPLETED' && order.paymentIntentId) {
+      try {
+        await createRefund(order.paymentIntentId, undefined, 'requested_by_customer');
+        await prisma.order.update({
+          where: { id: orderId },
+          data: { paymentStatus: 'REFUNDED' },
+        });
+      } catch (refundError) {
+        // Log the failure but do not block the cancellation — order is already CANCELLED.
+        // Manual follow-up required.
+        console.error(
+          `Refund failed for order ${orderId} (paymentIntentId: ${order.paymentIntentId}):`,
+          refundError
+        );
+      }
+    }
 
     // Restore product inventory
     await restoreInventory(orderId);
