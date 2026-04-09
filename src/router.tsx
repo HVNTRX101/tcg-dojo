@@ -34,6 +34,7 @@ const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const SellerAnalyticsPage = lazy(() => import('./pages/SellerAnalyticsPage'));
 const MoreProductsPage = lazy(() => import('./pages/MoreProductsPage'));
 const UnauthorizedPage = lazy(() => import('./pages/UnauthorizedPage'));
+const MarketplacePage = lazy(() => import('./pages/MarketplacePage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const EmailVerificationPage = lazy(() => import('./pages/EmailVerificationPage'));
@@ -269,6 +270,14 @@ const router = createBrowserRouter([
         element: (
           <LazyRoute>
             <MoreProductsPage />
+          </LazyRoute>
+        ),
+      },
+      {
+        path: 'marketplace',
+        element: (
+          <LazyRoute>
+            <MarketplacePage />
           </LazyRoute>
         ),
       },
