@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../services/api';
 
 interface DashboardData {
   users: {
@@ -28,7 +28,6 @@ interface DashboardData {
 }
 
 export default function AdminDashboardPage() {
-  const _navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -39,18 +38,7 @@ export default function AdminDashboardPage() {
 
   const fetchDashboard = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/admin/dashboard', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
-
-      const data = await response.json();
+      const data = await apiClient.get<DashboardData>('/admin/dashboard');
       setDashboardData(data);
     } catch (err: any) {
       setError(err.message);
