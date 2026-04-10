@@ -1,272 +1,292 @@
-import Joi from 'joi';
+import { z } from 'zod';
+import { Request, Response, NextFunction } from 'express';
 
 /**
  * Validation Schemas
- * Comprehensive input validation using Joi
+ * Comprehensive input validation using Zod
  */
 
 // Common schemas
-const emailSchema = Joi.string()
-  .email()
-  .max(255)
-  .lowercase()
-  .trim()
-  .required();
+const emailSchema = z.string().email().max(255).toLowerCase().trim();
 
-const passwordSchema = Joi.string()
-  .min(8)
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters long')
   .max(128)
-  .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'))
-  .required()
-  .messages({
-    'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-    'string.min': 'Password must be at least 8 characters long',
-  });
+  .regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/,
+    'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+  );
 
-const uuidSchema = Joi.string().uuid().required();
+const uuidSchema = z.string().uuid();
 
-const paginationSchema = Joi.object({
-  page: Joi.number().integer().min(1).default(1),
-  limit: Joi.number().integer().min(1).max(100).default(20),
+const paginationSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 // Authentication schemas
-export const registerSchema = Joi.object({
+export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  name: Joi.string().min(2).max(100).trim().required(),
-  role: Joi.string().valid('USER', 'SELLER', 'ADMIN').default('USER'),
+  name: z.string().min(2).max(100).trim(),
+  role: z.enum(['USER', 'SELLER', 'ADMIN']).default('USER'),
 });
 
-export const loginSchema = Joi.object({
+export const loginSchema = z.object({
   email: emailSchema,
-  password: Joi.string().required(), // Don't validate pattern on login
+  password: z.string().min(1, 'Password is required'),
 });
 
-export const resetPasswordRequestSchema = Joi.object({
+export const resetPasswordRequestSchema = z.object({
   email: emailSchema,
 });
 
-export const resetPasswordSchema = Joi.object({
-  token: Joi.string().required(),
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
   password: passwordSchema,
 });
 
-export const changePasswordSchema = Joi.object({
-  currentPassword: Joi.string().required(),
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
   newPassword: passwordSchema,
 });
 
 // Product schemas
-export const createProductSchema = Joi.object({
-  name: Joi.string().min(1).max(255).trim().required(),
-  description: Joi.string().max(5000).trim().allow(''),
-  price: Joi.number().positive().precision(2).required(),
-  stock: Joi.number().integer().min(0).required(),
+export const createProductSchema = z.object({
+  name: z.string().min(1).max(255).trim(),
+  description: z.string().max(5000).trim().optional().default(''),
+  price: z.number().positive(),
+  stock: z.number().int().min(0),
   gameId: uuidSchema,
-  setId: Joi.string().uuid().optional(),
-  rarity: Joi.string().max(50).trim().optional(),
-  condition: Joi.string().valid('MINT', 'NEAR_MINT', 'EXCELLENT', 'GOOD', 'LIGHT_PLAYED', 'PLAYED', 'POOR').optional(),
-  finish: Joi.string().valid('NORMAL', 'FOIL', 'ETCHED', 'GILDED').optional(),
-  language: Joi.string().length(2).uppercase().default('EN'),
-  cardNumber: Joi.string().max(50).trim().optional(),
-  artist: Joi.string().max(100).trim().optional(),
-  imageUrl: Joi.string().uri().max(500).optional(),
-  tags: Joi.array().items(Joi.string().max(50).trim()).max(10).optional(),
+  setId: uuidSchema.optional(),
+  rarity: z.string().max(50).trim().optional(),
+  condition: z
+    .enum(['MINT', 'NEAR_MINT', 'EXCELLENT', 'GOOD', 'LIGHT_PLAYED', 'PLAYED', 'POOR'])
+    .optional(),
+  finish: z.enum(['NORMAL', 'FOIL', 'ETCHED', 'GILDED']).optional(),
+  language: z.string().length(2).toUpperCase().default('EN'),
+  cardNumber: z.string().max(50).trim().optional(),
+  artist: z.string().max(100).trim().optional(),
+  imageUrl: z.string().url().max(500).optional(),
+  tags: z.array(z.string().max(50).trim()).max(10).optional(),
 });
 
-export const updateProductSchema = Joi.object({
-  name: Joi.string().min(1).max(255).trim(),
-  description: Joi.string().max(5000).trim().allow(''),
-  price: Joi.number().positive().precision(2),
-  stock: Joi.number().integer().min(0),
-  gameId: Joi.string().uuid(),
-  setId: Joi.string().uuid(),
-  rarity: Joi.string().max(50).trim(),
-  condition: Joi.string().valid('MINT', 'NEAR_MINT', 'EXCELLENT', 'GOOD', 'LIGHT_PLAYED', 'PLAYED', 'POOR'),
-  finish: Joi.string().valid('NORMAL', 'FOIL', 'ETCHED', 'GILDED'),
-  language: Joi.string().length(2).uppercase(),
-  cardNumber: Joi.string().max(50).trim(),
-  artist: Joi.string().max(100).trim(),
-  imageUrl: Joi.string().uri().max(500),
-  tags: Joi.array().items(Joi.string().max(50).trim()).max(10),
-}).min(1); // At least one field must be present
+export const updateProductSchema = z
+  .object({
+    name: z.string().min(1).max(255).trim().optional(),
+    description: z.string().max(5000).trim().optional(),
+    price: z.number().positive().optional(),
+    stock: z.number().int().min(0).optional(),
+    gameId: uuidSchema.optional(),
+    setId: uuidSchema.optional(),
+    rarity: z.string().max(50).trim().optional(),
+    condition: z
+      .enum(['MINT', 'NEAR_MINT', 'EXCELLENT', 'GOOD', 'LIGHT_PLAYED', 'PLAYED', 'POOR'])
+      .optional(),
+    finish: z.enum(['NORMAL', 'FOIL', 'ETCHED', 'GILDED']).optional(),
+    language: z.string().length(2).toUpperCase().optional(),
+    cardNumber: z.string().max(50).trim().optional(),
+    artist: z.string().max(100).trim().optional(),
+    imageUrl: z.string().url().max(500).optional(),
+    tags: z.array(z.string().max(50).trim()).max(10).optional(),
+  })
+  .refine(data => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided',
+  });
 
-export const productQuerySchema = paginationSchema.keys({
-  search: Joi.string().max(200).trim(),
-  gameId: Joi.string().uuid(),
-  setId: Joi.string().uuid(),
-  minPrice: Joi.number().min(0),
-  maxPrice: Joi.number().min(0),
-  rarity: Joi.string().max(50),
-  condition: Joi.string().valid('MINT', 'NEAR_MINT', 'EXCELLENT', 'GOOD', 'LIGHT_PLAYED', 'PLAYED', 'POOR'),
-  finish: Joi.string().valid('NORMAL', 'FOIL', 'ETCHED', 'GILDED'),
-  inStock: Joi.boolean(),
-  sortBy: Joi.string().valid('createdAt', 'price', 'name', 'stock'),
-  sortOrder: Joi.string().valid('asc', 'desc'),
+export const productQuerySchema = paginationSchema.extend({
+  search: z.string().max(200).trim().optional(),
+  gameId: uuidSchema.optional(),
+  setId: uuidSchema.optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
+  rarity: z.string().max(50).optional(),
+  condition: z
+    .enum(['MINT', 'NEAR_MINT', 'EXCELLENT', 'GOOD', 'LIGHT_PLAYED', 'PLAYED', 'POOR'])
+    .optional(),
+  finish: z.enum(['NORMAL', 'FOIL', 'ETCHED', 'GILDED']).optional(),
+  inStock: z.coerce.boolean().optional(),
+  sortBy: z.enum(['createdAt', 'price', 'name', 'stock']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
 // Cart schemas
-export const addToCartSchema = Joi.object({
+export const addToCartSchema = z.object({
   productId: uuidSchema,
-  quantity: Joi.number().integer().min(1).max(99).required(),
+  quantity: z.number().int().min(1).max(99),
 });
 
-export const updateCartItemSchema = Joi.object({
-  quantity: Joi.number().integer().min(0).max(99).required(),
+export const updateCartItemSchema = z.object({
+  quantity: z.number().int().min(0).max(99),
 });
 
 // Order schemas
-export const createOrderSchema = Joi.object({
-  shippingAddress: Joi.object({
-    street: Joi.string().max(255).trim().required(),
-    city: Joi.string().max(100).trim().required(),
-    state: Joi.string().max(100).trim().required(),
-    zipCode: Joi.string().max(20).trim().required(),
-    country: Joi.string().length(2).uppercase().required(),
-  }).required(),
-  paymentMethodId: Joi.string().required(),
-  couponCode: Joi.string().max(50).trim().optional(),
+export const createOrderSchema = z.object({
+  shippingAddress: z.object({
+    street: z.string().max(255).trim(),
+    city: z.string().max(100).trim(),
+    state: z.string().max(100).trim(),
+    zipCode: z.string().max(20).trim(),
+    country: z.string().length(2).toUpperCase(),
+  }),
+  paymentMethodId: z.string().min(1),
+  couponCode: z.string().max(50).trim().optional(),
 });
 
-export const updateOrderStatusSchema = Joi.object({
-  status: Joi.string()
-    .valid('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED')
-    .required(),
+export const updateOrderStatusSchema = z.object({
+  status: z.enum(['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']),
 });
 
 // Review schemas
-export const createReviewSchema = Joi.object({
+export const createReviewSchema = z.object({
   productId: uuidSchema,
-  rating: Joi.number().integer().min(1).max(5).required(),
-  comment: Joi.string().max(2000).trim().required(),
-  images: Joi.array().items(Joi.string().uri().max(500)).max(5).optional(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().max(2000).trim(),
+  images: z.array(z.string().url().max(500)).max(5).optional(),
 });
 
-export const updateReviewSchema = Joi.object({
-  rating: Joi.number().integer().min(1).max(5),
-  comment: Joi.string().max(2000).trim(),
-  images: Joi.array().items(Joi.string().uri().max(500)).max(5),
-}).min(1);
+export const updateReviewSchema = z
+  .object({
+    rating: z.number().int().min(1).max(5).optional(),
+    comment: z.string().max(2000).trim().optional(),
+    images: z.array(z.string().url().max(500)).max(5).optional(),
+  })
+  .refine(data => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided',
+  });
 
 // Seller schemas
-export const updateSellerProfileSchema = Joi.object({
-  businessName: Joi.string().max(200).trim(),
-  description: Joi.string().max(2000).trim(),
-  logoUrl: Joi.string().uri().max(500),
-  bannerUrl: Joi.string().uri().max(500),
-  website: Joi.string().uri().max(500),
-  phone: Joi.string().max(20).trim(),
-  shippingPolicy: Joi.string().max(2000).trim(),
-  returnPolicy: Joi.string().max(2000).trim(),
-}).min(1);
+export const updateSellerProfileSchema = z
+  .object({
+    businessName: z.string().max(200).trim().optional(),
+    description: z.string().max(2000).trim().optional(),
+    logoUrl: z.string().url().max(500).optional(),
+    bannerUrl: z.string().url().max(500).optional(),
+    website: z.string().url().max(500).optional(),
+    phone: z.string().max(20).trim().optional(),
+    shippingPolicy: z.string().max(2000).trim().optional(),
+    returnPolicy: z.string().max(2000).trim().optional(),
+  })
+  .refine(data => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided',
+  });
 
 // Message schemas
-export const sendMessageSchema = Joi.object({
+export const sendMessageSchema = z.object({
   receiverId: uuidSchema,
-  content: Joi.string().min(1).max(5000).trim().required(),
-  orderId: Joi.string().uuid().optional(),
-  productId: Joi.string().uuid().optional(),
+  content: z.string().min(1).max(5000).trim(),
+  orderId: uuidSchema.optional(),
+  productId: uuidSchema.optional(),
 });
 
 // Comment schemas
-export const createCommentSchema = Joi.object({
+export const createCommentSchema = z.object({
   productId: uuidSchema,
-  content: Joi.string().min(1).max(1000).trim().required(),
-  parentId: Joi.string().uuid().optional(),
+  content: z.string().min(1).max(1000).trim(),
+  parentId: uuidSchema.optional(),
 });
 
-export const updateCommentSchema = Joi.object({
-  content: Joi.string().min(1).max(1000).trim().required(),
+export const updateCommentSchema = z.object({
+  content: z.string().min(1).max(1000).trim(),
 });
 
 // Admin schemas
-export const updateUserSchema = Joi.object({
-  name: Joi.string().min(2).max(100).trim(),
-  email: emailSchema.optional(),
-  role: Joi.string().valid('USER', 'SELLER', 'ADMIN'),
-  emailVerified: Joi.boolean(),
-}).min(1);
+export const updateUserSchema = z
+  .object({
+    name: z.string().min(2).max(100).trim().optional(),
+    email: emailSchema.optional(),
+    role: z.enum(['USER', 'SELLER', 'ADMIN']).optional(),
+    emailVerified: z.boolean().optional(),
+  })
+  .refine(data => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided',
+  });
 
-export const systemSettingSchema = Joi.object({
-  value: Joi.string().required(),
-  isPublic: Joi.boolean().default(false),
-  category: Joi.string().max(100).trim().optional(),
+export const systemSettingSchema = z.object({
+  value: z.string().min(1),
+  isPublic: z.boolean().default(false),
+  category: z.string().max(100).trim().optional(),
 });
 
-export const refundOrderSchema = Joi.object({
-  amount: Joi.number().positive().precision(2).required(),
-  reason: Joi.string().max(500).trim().required(),
+export const refundOrderSchema = z.object({
+  amount: z.number().positive(),
+  reason: z.string().max(500).trim(),
 });
 
 // Analytics schemas
-export const analyticsDateRangeSchema = Joi.object({
-  startDate: Joi.date().iso().required(),
-  endDate: Joi.date().iso().min(Joi.ref('startDate')).required(),
-  period: Joi.string().valid('DAILY', 'WEEKLY', 'MONTHLY').default('DAILY'),
-  sellerId: Joi.string().uuid().optional(),
+export const analyticsDateRangeSchema = z
+  .object({
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    period: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']).default('DAILY'),
+    sellerId: uuidSchema.optional(),
+  })
+  .refine(data => data.endDate >= data.startDate, {
+    message: 'End date must be after start date',
+    path: ['endDate'],
+  });
+
+export const generateAnalyticsSchema = z.object({
+  date: z.coerce.date(),
+  period: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']),
 });
 
-export const generateAnalyticsSchema = Joi.object({
-  date: Joi.date().iso().required(),
-  period: Joi.string().valid('DAILY', 'WEEKLY', 'MONTHLY').required(),
-});
-
-export const createReportSchema = Joi.object({
-  name: Joi.string().min(1).max(200).trim().required(),
-  description: Joi.string().max(1000).trim().optional(),
-  reportType: Joi.string().valid('SALES', 'INVENTORY', 'USERS', 'REVENUE', 'CUSTOM').required(),
-  parameters: Joi.object().optional(),
-  schedule: Joi.string().valid('NONE', 'DAILY', 'WEEKLY', 'MONTHLY').default('NONE'),
-  recipients: Joi.array().items(emailSchema).min(1).optional(),
+export const createReportSchema = z.object({
+  name: z.string().min(1).max(200).trim(),
+  description: z.string().max(1000).trim().optional(),
+  reportType: z.enum(['SALES', 'INVENTORY', 'USERS', 'REVENUE', 'CUSTOM']),
+  parameters: z.record(z.unknown()).optional(),
+  schedule: z.enum(['NONE', 'DAILY', 'WEEKLY', 'MONTHLY']).default('NONE'),
+  recipients: z.array(emailSchema).min(1).optional(),
 });
 
 // Notification schemas
-export const notificationPreferencesSchema = Joi.object({
-  emailNotifications: Joi.boolean(),
-  pushNotifications: Joi.boolean(),
-  orderUpdates: Joi.boolean(),
-  promotions: Joi.boolean(),
-  newsletter: Joi.boolean(),
-  messages: Joi.boolean(),
-  reviews: Joi.boolean(),
+export const notificationPreferencesSchema = z.object({
+  emailNotifications: z.boolean().optional(),
+  pushNotifications: z.boolean().optional(),
+  orderUpdates: z.boolean().optional(),
+  promotions: z.boolean().optional(),
+  newsletter: z.boolean().optional(),
+  messages: z.boolean().optional(),
+  reviews: z.boolean().optional(),
 });
 
 // File upload schemas
-export const imageUploadSchema = Joi.object({
-  fieldName: Joi.string().valid('image', 'images', 'logo', 'banner', 'avatar').required(),
-  maxSize: Joi.number().integer().max(10 * 1024 * 1024).default(5 * 1024 * 1024), // Default 5MB
-  allowedTypes: Joi.array()
-    .items(Joi.string().valid('image/jpeg', 'image/png', 'image/webp', 'image/gif'))
+export const imageUploadSchema = z.object({
+  fieldName: z.enum(['image', 'images', 'logo', 'banner', 'avatar']),
+  maxSize: z
+    .number()
+    .int()
+    .max(10 * 1024 * 1024)
+    .default(5 * 1024 * 1024),
+  allowedTypes: z
+    .array(z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/gif']))
     .default(['image/jpeg', 'image/png', 'image/webp']),
 });
 
 /**
  * Validation Middleware Factory
  */
-export const validate = (schema: Joi.ObjectSchema) => {
-  return (req: any, res: any, next: any) => {
-    const { error, value } = schema.validate(req.body, {
-      abortEarly: false, // Return all errors
-      stripUnknown: true, // Remove unknown fields
-      convert: true, // Type conversion
-    });
+export const validate = (schema: z.ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.body);
 
-    if (error) {
-      const errors = error.details.map((detail) => ({
-        field: detail.path.join('.'),
-        message: detail.message,
+    if (!result.success) {
+      const errors = result.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
       }));
 
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Validation Error',
         message: 'Invalid input data',
         errors,
       });
+      return;
     }
 
-    // Replace req.body with validated and sanitized data
-    req.body = value;
+    req.body = result.data;
     next();
   };
 };
@@ -274,28 +294,25 @@ export const validate = (schema: Joi.ObjectSchema) => {
 /**
  * Query Validation Middleware Factory
  */
-export const validateQuery = (schema: Joi.ObjectSchema) => {
-  return (req: any, res: any, next: any) => {
-    const { error, value } = schema.validate(req.query, {
-      abortEarly: false,
-      stripUnknown: true,
-      convert: true,
-    });
+export const validateQuery = (schema: z.ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.query);
 
-    if (error) {
-      const errors = error.details.map((detail) => ({
-        field: detail.path.join('.'),
-        message: detail.message,
+    if (!result.success) {
+      const errors = result.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
       }));
 
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Validation Error',
         message: 'Invalid query parameters',
         errors,
       });
+      return;
     }
 
-    req.query = value;
+    req.query = result.data;
     next();
   };
 };
@@ -303,28 +320,25 @@ export const validateQuery = (schema: Joi.ObjectSchema) => {
 /**
  * Params Validation Middleware Factory
  */
-export const validateParams = (schema: Joi.ObjectSchema) => {
-  return (req: any, res: any, next: any) => {
-    const { error, value } = schema.validate(req.params, {
-      abortEarly: false,
-      stripUnknown: true,
-      convert: true,
-    });
+export const validateParams = (schema: z.ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.params);
 
-    if (error) {
-      const errors = error.details.map((detail) => ({
-        field: detail.path.join('.'),
-        message: detail.message,
+    if (!result.success) {
+      const errors = result.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
       }));
 
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Validation Error',
         message: 'Invalid URL parameters',
         errors,
       });
+      return;
     }
 
-    req.params = value;
+    req.params = result.data;
     next();
   };
 };

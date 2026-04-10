@@ -1,5 +1,8 @@
 import prisma from '../config/database';
+import { AppError } from '../middleware/errorHandler';
 import { createNotification, NotificationTypes } from '../controllers/notificationController';
+import { createRefund } from './paymentService';
+import { sendOrderShippedEmail, sendOrderDeliveredEmail } from './emailService';
 
 /**
  * Order Tracking Service
@@ -57,7 +60,7 @@ export const updateOrderStatus = async (
     });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new AppError('Order not found', 404);
     }
 
     const oldStatus = order.status;
@@ -112,8 +115,25 @@ export const updateOrderStatus = async (
       );
     }
 
-    // TODO: Send email notification based on user preferences
-    // TODO: Emit WebSocket event for real-time update
+    // Send email notification for shipped/delivered statuses
+    try {
+      if (newStatus === 'SHIPPED') {
+        await sendOrderShippedEmail(order.user.email, {
+          orderNumber: orderId.substring(0, 8),
+          customerName: order.user.name || 'Customer',
+          trackingNumber: '', // Would come from shipping integration
+          trackingUrl: undefined,
+        });
+      } else if (newStatus === 'DELIVERED') {
+        await sendOrderDeliveredEmail(order.user.email, {
+          orderNumber: orderId.substring(0, 8),
+          customerName: order.user.name || 'Customer',
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send order status email:', emailError);
+      // Continue execution — email failure should not block status update
+    }
 
     return updatedOrder;
   } catch (error) {
@@ -168,7 +188,7 @@ export const getOrderWithTracking = async (orderId: string) => {
     });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new AppError('Order not found', 404);
     }
 
     // Parse JSON addresses
@@ -271,12 +291,12 @@ export const cancelOrder = async (
     });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new AppError('Order not found', 404);
     }
 
     // Can only cancel pending or processing orders
     if (!['PENDING', 'PROCESSING'].includes(order.status)) {
-      throw new Error(`Cannot cancel order with status: ${order.status}`);
+      throw new AppError(`Cannot cancel order with status: ${order.status}`, 409);
     }
 
     // Update order
@@ -286,6 +306,13 @@ export const cancelOrder = async (
         status: 'CANCELLED',
         cancelledAt: new Date(),
         cancelReason,
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
 
@@ -307,7 +334,23 @@ export const cancelOrder = async (
       { orderId, cancelReason }
     );
 
-    // TODO: Process refund if payment was completed
+    // Process refund if payment was completed
+    if (order.paymentStatus === 'COMPLETED' && order.paymentIntentId) {
+      try {
+        await createRefund(order.paymentIntentId, undefined, 'requested_by_customer');
+        await prisma.order.update({
+          where: { id: orderId },
+          data: { paymentStatus: 'REFUNDED' },
+        });
+      } catch (refundError) {
+        // Log the failure but do not block the cancellation — order is already CANCELLED.
+        // Manual follow-up required.
+        console.error(
+          `Refund failed for order ${orderId} (paymentIntentId: ${order.paymentIntentId}):`,
+          refundError
+        );
+      }
+    }
 
     // Restore product inventory
     await restoreInventory(orderId);

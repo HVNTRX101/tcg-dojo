@@ -102,7 +102,7 @@ export const sendOrderConfirmationEmail = async (
     email,
     `Order Confirmation #${orderData.orderNumber}`,
     'order-confirmation',
-    orderData
+    { ...orderData, frontendUrl: config.app.frontendUrl }
   );
 };
 
@@ -176,7 +176,7 @@ export const sendOrderDeliveredEmail = async (
     email,
     `Your Order #${orderData.orderNumber} Has Been Delivered`,
     'order-delivered',
-    orderData
+    { ...orderData, frontendUrl: config.app.frontendUrl }
   );
 };
 

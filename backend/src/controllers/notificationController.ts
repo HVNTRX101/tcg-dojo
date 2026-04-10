@@ -69,7 +69,12 @@ export const createNotification = async (
       // Don't throw - email failures shouldn't break the notification system
     });
 
-    // TODO: Send push notification if user has enabled it
+    // NOTE: Push notifications require additional infrastructure:
+    // 1. Service worker registration on frontend (for web push)
+    // 2. FCM (Firebase Cloud Messaging) or APNS integration
+    // 3. Device token storage in user profile
+    // 4. User preference for push notifications
+    // Implement when mobile app or PWA support is prioritized.
 
     return notification;
   } catch (error) {

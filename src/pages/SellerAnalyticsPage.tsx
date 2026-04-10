@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiClient } from '../services/api';
 
 interface DashboardData {
   products: {
@@ -52,23 +53,10 @@ export default function SellerAnalyticsPage() {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token');
-
-      const [dashboardResponse, performanceResponse] = await Promise.all([
-        fetch('http://localhost:3000/api/seller/analytics/dashboard', {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch('http://localhost:3000/api/seller/analytics/performance', {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+      const [dashboard, performance] = await Promise.all([
+        apiClient.get<DashboardData>('/seller/analytics/dashboard'),
+        apiClient.get<PerformanceData>('/seller/analytics/performance'),
       ]);
-
-      if (!dashboardResponse.ok || !performanceResponse.ok) {
-        throw new Error('Failed to fetch analytics data');
-      }
-
-      const dashboard = await dashboardResponse.json();
-      const performance = await performanceResponse.json();
 
       setDashboardData(dashboard);
       setPerformanceData(performance);

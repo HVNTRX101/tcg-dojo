@@ -7,6 +7,7 @@ import {
   CancelOrderInput,
 } from '../types';
 import { AuthRequest } from '../middleware/auth';
+import { cancelOrder as cancelOrderService } from '../services/orderTrackingService';
 
 /**
  * Calculate tax (simplified - 10% for demo purposes)
@@ -430,7 +431,6 @@ export const cancelOrder = async (
 
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true },
   });
 
   if (!order) {
@@ -450,50 +450,16 @@ export const cancelOrder = async (
     );
   }
 
-  // Use transaction to restore inventory and cancel order
-  const result = await prisma.$transaction(async (tx) => {
-    // Restore inventory
-    for (const item of order.items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: {
-          quantity: {
-            increment: item.quantity,
-          },
-        },
-      });
-    }
+  // Delegate to service which handles status history, notification, refund, and inventory
+  const result = await cancelOrderService(id, cancelReason ?? '', userId);
 
-    // Update order
-    const cancelledOrder = await tx.order.update({
-      where: { id },
-      data: {
-        status: 'CANCELLED',
-        cancelledAt: new Date(),
-        cancelReason,
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    });
-
-    return cancelledOrder;
-  });
-
-  // Parse addresses
-  const response = {
+  res.json({
     ...result,
-    shippingAddress: JSON.parse(result.shippingAddress),
+    shippingAddress: JSON.parse(result.shippingAddress as string),
     billingAddress: result.billingAddress
-      ? JSON.parse(result.billingAddress)
+      ? JSON.parse(result.billingAddress as string)
       : null,
-  };
-
-  res.json(response);
+  });
 };
 
 /**

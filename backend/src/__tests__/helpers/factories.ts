@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, ProductCondition, OrderStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { generateRandomString, generateRandomEmail, generateRandomNumber } from './testUtils';
 
@@ -15,7 +15,7 @@ export class TestDataFactory {
         password: hashedPassword,
         firstName: overrides.firstName || 'Test',
         lastName: overrides.lastName || 'User',
-        role: overrides.role || UserRole.USER,
+        role: overrides.role || 'USER',
         isVerified: overrides.isVerified !== undefined ? overrides.isVerified : true,
         ...overrides,
       },
@@ -25,7 +25,7 @@ export class TestDataFactory {
   async createSeller(userId?: string, overrides: any = {}) {
     const user = userId
       ? await this.prisma.user.findUnique({ where: { id: userId } })
-      : await this.createUser({ role: UserRole.SELLER });
+      : await this.createUser({ role: 'SELLER' });
 
     if (!user) throw new Error('User not found');
 
@@ -91,7 +91,7 @@ export class TestDataFactory {
         description: overrides.description || 'A test trading card',
         price: overrides.price || generateRandomNumber(1, 100),
         stock: overrides.stock || generateRandomNumber(1, 100),
-        condition: overrides.condition || ProductCondition.NEAR_MINT,
+        condition: overrides.condition || 'NEAR_MINT',
         rarity: overrides.rarity || 'Common',
         cardNumber: overrides.cardNumber || generateRandomString(5),
         ...overrides,
@@ -135,7 +135,7 @@ export class TestDataFactory {
     return this.prisma.order.create({
       data: {
         userId: user.id,
-        status: overrides.status || OrderStatus.PENDING,
+        status: overrides.status || 'PENDING',
         totalAmount: overrides.totalAmount || generateRandomNumber(10, 1000),
         shippingAddress: overrides.shippingAddress || '123 Test St',
         shippingCity: overrides.shippingCity || 'Test City',

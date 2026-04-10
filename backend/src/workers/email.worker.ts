@@ -115,7 +115,7 @@ export async function queueOrderConfirmationEmail(
     to: email,
     subject: `Order Confirmation #${orderData.orderNumber}`,
     template: 'order-confirmation',
-    context: orderData,
+    context: { ...orderData, frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173' },
   }, 1); // Critical priority
 }
 

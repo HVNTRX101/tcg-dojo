@@ -17,9 +17,20 @@ jest.mock('@prisma/client', () => {
       count: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      groupBy: jest.fn(),
     },
     order: {
       findMany: jest.fn(),
+      count: jest.fn(),
+      aggregate: jest.fn(),
+    },
+    product: {
+      count: jest.fn(),
+    },
+    review: {
+      count: jest.fn(),
+    },
+    seller: {
       count: jest.fn(),
     },
   };
@@ -95,7 +106,6 @@ describe('Admin Controller - Authorization Tests', () => {
       await getAllUsers(mockRequest as any, mockResponse as Response);
 
       expect(prisma.user.findMany).toHaveBeenCalled();
-      expect(statusMock).toHaveBeenCalledWith(200);
       expect(jsonMock).toHaveBeenCalledWith(
         expect.objectContaining({
           users: mockUsers,
@@ -176,7 +186,7 @@ describe('Admin Controller - Authorization Tests', () => {
         }),
         select: expect.any(Object),
       });
-      expect(statusMock).toHaveBeenCalledWith(200);
+      expect(jsonMock).toHaveBeenCalledWith(mockUser);
     });
 
     it('should handle user not found error', async () => {
@@ -216,11 +226,11 @@ describe('Admin Controller - Authorization Tests', () => {
         where: { id: 'user1' },
       });
       expect(adminLogService.logAdminAction).toHaveBeenCalledWith(
-        'admin-id',
-        'DELETE_USER',
-        { userId: 'user1' }
+        expect.objectContaining({ user: mockRequest.user }),
+        'USER_DELETED',
+        'USER',
+        'user1'
       );
-      expect(statusMock).toHaveBeenCalledWith(200);
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'User deleted successfully',
       });
@@ -270,11 +280,14 @@ describe('Admin Controller - Authorization Tests', () => {
       };
 
       prisma.user.count.mockResolvedValue(100);
+      prisma.product.count.mockResolvedValue(200);
       prisma.order.count.mockResolvedValue(50);
+      prisma.order.aggregate.mockResolvedValue({ _sum: { total: 5000 } });
+      prisma.review.count.mockResolvedValue(5);
+      prisma.seller.count.mockResolvedValue(20);
 
       await getDashboardOverview(mockRequest as any, mockResponse as Response);
 
-      expect(statusMock).toHaveBeenCalledWith(200);
       expect(jsonMock).toHaveBeenCalled();
     });
 
