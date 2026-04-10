@@ -13,10 +13,6 @@ jest.mock('../emailService', () => ({
   sendOrderDeliveredEmail: jest.fn(),
 }));
 
-jest.mock('../websocket', () => ({
-  emitNotificationToUser: jest.fn(),
-}));
-
 jest.mock('../../controllers/notificationController', () => ({
   createNotification: jest.fn(),
   NotificationTypes: {
@@ -29,7 +25,6 @@ jest.mock('../../controllers/notificationController', () => ({
 import { mockPrisma } from '../../__tests__/mocks/prisma';
 import { createRefund } from '../paymentService';
 import { sendOrderShippedEmail, sendOrderDeliveredEmail } from '../emailService';
-import { emitNotificationToUser } from '../websocket';
 import { createNotification } from '../../controllers/notificationController';
 
 import {
@@ -96,7 +91,6 @@ describe('OrderTrackingService', () => {
       (createNotification as jest.Mock).mockResolvedValue({});
       (sendOrderShippedEmail as jest.Mock).mockResolvedValue(undefined);
       (sendOrderDeliveredEmail as jest.Mock).mockResolvedValue(undefined);
-      (emitNotificationToUser as jest.Mock).mockReturnValue(undefined);
     });
 
     it('should update order status and add history', async () => {
@@ -140,15 +134,17 @@ describe('OrderTrackingService', () => {
       );
     });
 
-    it('should emit WebSocket notification', async () => {
+    it('should create notification for SHIPPED status (which handles WebSocket emission)', async () => {
       await updateOrderStatus('order-123', 'SHIPPED');
 
-      expect(emitNotificationToUser).toHaveBeenCalledWith(
+      // createNotification handles both DB persistence and WebSocket emission internally
+      expect(createNotification).toHaveBeenCalledWith(
         'user-1',
-        expect.objectContaining({
-          type: 'ORDER_SHIPPED',
-          title: 'Order Shipped',
-        })
+        'ORDER_SHIPPED',
+        'Order Shipped',
+        expect.stringContaining('order-12'),
+        expect.any(String),
+        expect.any(Object)
       );
     });
 

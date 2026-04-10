@@ -2,7 +2,6 @@ import prisma from '../config/database';
 import { createNotification, NotificationTypes } from '../controllers/notificationController';
 import { createRefund } from './paymentService';
 import { sendOrderShippedEmail, sendOrderDeliveredEmail } from './emailService';
-import { emitNotificationToUser } from './websocket';
 
 /**
  * Order Tracking Service
@@ -133,19 +132,6 @@ export const updateOrderStatus = async (
     } catch (emailError) {
       console.error('Failed to send order status email:', emailError);
       // Continue execution — email failure should not block status update
-    }
-
-    // Emit WebSocket event for real-time update
-    if (notificationMessages[newStatus]) {
-      const { title, message, type } = notificationMessages[newStatus];
-      emitNotificationToUser(order.userId, {
-        type,
-        title,
-        message,
-        link: `/orders/${orderId}`,
-        data: { orderId, oldStatus, newStatus },
-        createdAt: new Date().toISOString(),
-      });
     }
 
     return updatedOrder;
