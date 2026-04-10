@@ -1,4 +1,5 @@
 import prisma from '../config/database';
+import { AppError } from '../middleware/errorHandler';
 import { createNotification, NotificationTypes } from '../controllers/notificationController';
 import { createRefund } from './paymentService';
 import { sendOrderShippedEmail, sendOrderDeliveredEmail } from './emailService';
@@ -59,7 +60,7 @@ export const updateOrderStatus = async (
     });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new AppError('Order not found', 404);
     }
 
     const oldStatus = order.status;
@@ -187,7 +188,7 @@ export const getOrderWithTracking = async (orderId: string) => {
     });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new AppError('Order not found', 404);
     }
 
     // Parse JSON addresses
@@ -290,12 +291,12 @@ export const cancelOrder = async (
     });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new AppError('Order not found', 404);
     }
 
     // Can only cancel pending or processing orders
     if (!['PENDING', 'PROCESSING'].includes(order.status)) {
-      throw new Error(`Cannot cancel order with status: ${order.status}`);
+      throw new AppError(`Cannot cancel order with status: ${order.status}`, 409);
     }
 
     // Update order
