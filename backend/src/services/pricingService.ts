@@ -131,7 +131,7 @@ export const fetchPokemonTCGPrices = async (
       return [];
     }
 
-    const data = await response.json();
+    const data = await response.json() as { data?: PokemonTCGCard[] };
     return data.data || [];
   } catch (error) {
     logger.error('Error fetching from Pokémon TCG API', { error });
@@ -163,7 +163,7 @@ export const fetchTCGdexPrices = async (
       return [];
     }
 
-    const cards = await response.json();
+    const cards = await response.json() as { id: string }[];
 
     // Fetch full card details to get cardmarket prices
     const detailedCards: TCGdexCard[] = [];
@@ -174,7 +174,7 @@ export const fetchTCGdexPrices = async (
         const detailResponse = await fetch(detailUrl);
 
         if (detailResponse.ok) {
-          const detailData = await detailResponse.json();
+          const detailData = await detailResponse.json() as TCGdexCard;
           detailedCards.push(detailData);
         }
       } catch (err) {

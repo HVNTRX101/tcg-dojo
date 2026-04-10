@@ -7,7 +7,7 @@ import {
 } from '../controllers/pricingController';
 import { asyncHandler } from '../middleware/errorHandler';
 import { getRedisClient } from '../config/redis';
-import * as NodeCache from 'node-cache';
+import NodeCache from 'node-cache';
 import { logger } from '../config/logger';
 import { Request, Response, NextFunction } from 'express';
 

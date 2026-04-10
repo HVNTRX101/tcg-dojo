@@ -12,12 +12,13 @@ const redisOptions = {
   password: process.env.REDIS_PASSWORD || undefined,
   db: parseInt(process.env.REDIS_DB || '0'),
   retryStrategy: (times: number) => {
+    if (times > 3) return null; // stop retrying after 3 attempts
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
-  maxRetriesPerRequest: 3,
-  enableReadyCheck: true,
-  lazyConnect: false,
+  maxRetriesPerRequest: null, // prevents MaxRetriesPerRequestError unhandled rejection
+  enableReadyCheck: false,
+  lazyConnect: true,
 };
 
 let mainRedisClient: Redis | null = null;

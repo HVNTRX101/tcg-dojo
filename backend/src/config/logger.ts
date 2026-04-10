@@ -99,6 +99,7 @@ transports.push(
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   levels: winston.config.npm.levels,
+  exitOnError: false,
   format: combine(
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     errors({ stack: true }),
