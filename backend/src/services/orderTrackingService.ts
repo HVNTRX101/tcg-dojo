@@ -306,6 +306,13 @@ export const cancelOrder = async (
         cancelledAt: new Date(),
         cancelReason,
       },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     // Add history

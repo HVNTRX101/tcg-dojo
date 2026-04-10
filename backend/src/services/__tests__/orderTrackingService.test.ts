@@ -320,6 +320,11 @@ describe('OrderTrackingService', () => {
           cancelledAt: expect.any(Date),
           cancelReason: 'Changed my mind',
         },
+        include: {
+          items: {
+            include: { product: true },
+          },
+        },
       });
       expect(result.status).toBe('CANCELLED');
     });
