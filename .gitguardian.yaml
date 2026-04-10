@@ -1,0 +1,12 @@
+version: 2
+
+# Exclude test files, documentation, and local dev config from secret scanning.
+# These paths contain intentional test fixtures, mock credentials, and
+# example values - not real secrets.
+ignore-paths:
+  - backend/src/**/__tests__/**
+  - backend/src/utils/__tests__/**
+  - backend/loadtests/**
+  - backend/docs/**
+  - backend/.env.example
+  - docker-compose.dev.yml
