@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notificationService } from '../services/notification.service';
+import {
+  notificationService,
+  type NotificationPreferences,
+} from '../services/notification.service';
 import { useAuth, useUpdateProfile, useChangePassword } from '../hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -11,18 +14,91 @@ import { Switch } from '../components/ui/switch';
 import { Separator } from '../components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { toast } from 'sonner';
-import { User, Bell, Lock, Shield } from 'lucide-react';
+import { User as UserIcon, Bell, Lock, Shield } from 'lucide-react';
 import { SentryTestButton } from '../components/SentryTestButton';
+import type { User as UserEntity } from '../types/user.types';
+
+function buildFullNameFromUser(u: UserEntity): string {
+  return [u.firstName, u.lastName].filter(Boolean).join(' ').trim();
+}
+
+function ProfileSettingsForm({ user }: { user: UserEntity }) {
+  const [profileData, setProfileData] = useState({
+    name: buildFullNameFromUser(user),
+    email: user.email,
+  });
+  const updateProfileMutation = useUpdateProfile();
+
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nameParts = profileData.name.trim().split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    updateProfileMutation.mutate(
+      { firstName, lastName, email: profileData.email },
+      {
+        onSuccess: () => {
+          toast.success('Profile updated successfully');
+        },
+        onError: () => {
+          toast.error('Failed to update profile');
+        },
+      }
+    );
+  };
+
+  return (
+    <CardContent className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Avatar className="h-20 w-20">
+          <AvatarImage src={user.avatar} />
+          <AvatarFallback className="text-2xl">
+            {(user.firstName?.charAt(0) || user.email?.charAt(0) || '?').toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <Button variant="outline" size="sm">
+            Change Avatar
+          </Button>
+          <p className="text-sm text-gray-500 mt-1">JPG, PNG or GIF. Max size 2MB</p>
+        </div>
+      </div>
+
+      <Separator />
+
+      <form onSubmit={handleProfileSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Full Name</Label>
+          <Input
+            id="name"
+            value={profileData.name}
+            onChange={e => setProfileData({ ...profileData, name: e.target.value })}
+            placeholder="Enter your full name"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={profileData.email}
+            onChange={e => setProfileData({ ...profileData, email: e.target.value })}
+            placeholder="Enter your email"
+          />
+        </div>
+
+        <Button type="submit" disabled={updateProfileMutation.isPending}>
+          {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </form>
+    </CardContent>
+  );
+}
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
-  // Profile state
-  const [profileData, setProfileData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-  });
 
   // Password state
   const [passwordData, setPasswordData] = useState({
@@ -30,9 +106,6 @@ export default function SettingsPage() {
     newPassword: '',
     confirmPassword: '',
   });
-
-  // Update profile mutation
-  const updateProfileMutation = useUpdateProfile();
 
   // Change password mutation
   const changePasswordMutation = useChangePassword();
@@ -45,7 +118,8 @@ export default function SettingsPage() {
 
   // Update notification preferences mutation
   const updatePreferencesMutation = useMutation({
-    mutationFn: (preferences: any) => notificationService.updatePreferences(preferences),
+    mutationFn: (preferences: Partial<NotificationPreferences>) =>
+      notificationService.updatePreferences(preferences),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
       toast.success('Notification preferences updated');
@@ -54,18 +128,6 @@ export default function SettingsPage() {
       toast.error('Failed to update preferences');
     },
   });
-
-  const handleProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateProfileMutation.mutate(profileData, {
-      onSuccess: () => {
-        toast.success('Profile updated successfully');
-      },
-      onError: () => {
-        toast.error('Failed to update profile');
-      },
-    });
-  };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +174,7 @@ export default function SettingsPage() {
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="profile">
-            <User className="h-4 w-4 mr-2" />
+            <UserIcon className="h-4 w-4 mr-2" />
             Profile
           </TabsTrigger>
           <TabsTrigger value="notifications">
@@ -132,53 +194,13 @@ export default function SettingsPage() {
               <CardTitle>Profile Information</CardTitle>
               <CardDescription>Update your profile details and preferences</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Avatar */}
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={user?.avatarUrl} />
-                  <AvatarFallback className="text-2xl">
-                    {user?.name?.charAt(0).toUpperCase() || '?'}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <Button variant="outline" size="sm">
-                    Change Avatar
-                  </Button>
-                  <p className="text-sm text-gray-500 mt-1">JPG, PNG or GIF. Max size 2MB</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Profile Form */}
-              <form onSubmit={handleProfileSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={profileData.name}
-                    onChange={e => setProfileData({ ...profileData, name: e.target.value })}
-                    placeholder="Enter your full name"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={profileData.email}
-                    onChange={e => setProfileData({ ...profileData, email: e.target.value })}
-                    placeholder="Enter your email"
-                  />
-                </div>
-
-                <Button type="submit" disabled={updateProfileMutation.isPending}>
-                  {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </form>
-            </CardContent>
+            {user ? (
+              <ProfileSettingsForm key={user.id} user={user} />
+            ) : (
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Sign in to manage your profile.</p>
+              </CardContent>
+            )}
           </Card>
         </TabsContent>
 
@@ -202,7 +224,7 @@ export default function SettingsPage() {
                       </div>
                       <Switch
                         checked={notificationPreferences?.emailNotifications ?? false}
-                        onCheckedChange={checked =>
+                        onCheckedChange={(checked: boolean) =>
                           handlePreferenceChange('emailNotifications', checked)
                         }
                       />
@@ -219,7 +241,7 @@ export default function SettingsPage() {
                       </div>
                       <Switch
                         checked={notificationPreferences?.pushNotifications ?? false}
-                        onCheckedChange={checked =>
+                        onCheckedChange={(checked: boolean) =>
                           handlePreferenceChange('pushNotifications', checked)
                         }
                       />
@@ -236,7 +258,9 @@ export default function SettingsPage() {
                       </div>
                       <Switch
                         checked={notificationPreferences?.orderUpdates ?? false}
-                        onCheckedChange={checked => handlePreferenceChange('orderUpdates', checked)}
+                        onCheckedChange={(checked: boolean) =>
+                          handlePreferenceChange('orderUpdates', checked)
+                        }
                       />
                     </div>
 
@@ -249,7 +273,9 @@ export default function SettingsPage() {
                       </div>
                       <Switch
                         checked={notificationPreferences?.priceAlerts ?? false}
-                        onCheckedChange={checked => handlePreferenceChange('priceAlerts', checked)}
+                        onCheckedChange={(checked: boolean) =>
+                          handlePreferenceChange('priceAlerts', checked)
+                        }
                       />
                     </div>
 
@@ -262,7 +288,7 @@ export default function SettingsPage() {
                       </div>
                       <Switch
                         checked={notificationPreferences?.productMessages ?? false}
-                        onCheckedChange={checked =>
+                        onCheckedChange={(checked: boolean) =>
                           handlePreferenceChange('productMessages', checked)
                         }
                       />
@@ -279,7 +305,9 @@ export default function SettingsPage() {
                       </div>
                       <Switch
                         checked={notificationPreferences?.promotions ?? false}
-                        onCheckedChange={checked => handlePreferenceChange('promotions', checked)}
+                        onCheckedChange={(checked: boolean) =>
+                          handlePreferenceChange('promotions', checked)
+                        }
                       />
                     </div>
                   </div>

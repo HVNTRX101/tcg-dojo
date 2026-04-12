@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '../ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import type { CardCondition, GameType } from '../../types';
 import { SEARCH_CONFIG } from '../../constants';
 
 interface MarketplaceFiltersProps {
   onFilterChange: (search: string, gameType?: GameType, condition?: CardCondition) => void;
+  initialSearch?: string;
+  initialGameType?: GameType | 'all';
+  listingsDataKey?: number;
 }
 
 const GAME_TYPES: Array<{ label: string; value: GameType | 'all' }> = [
@@ -33,9 +30,14 @@ const CONDITIONS: Array<{ label: string; value: CardCondition | 'all' }> = [
   { label: 'Damaged (D)', value: 'D' },
 ];
 
-export function MarketplaceFilters({ onFilterChange }: MarketplaceFiltersProps) {
-  const [search, setSearch] = useState('');
-  const [gameType, setGameType] = useState<GameType | 'all'>('all');
+export function MarketplaceFilters({
+  onFilterChange,
+  initialSearch = '',
+  initialGameType = 'all',
+  listingsDataKey = 0,
+}: MarketplaceFiltersProps) {
+  const [search, setSearch] = useState(initialSearch);
+  const [gameType, setGameType] = useState<GameType | 'all'>(initialGameType);
   const [condition, setCondition] = useState<CardCondition | 'all'>('all');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -51,7 +53,7 @@ export function MarketplaceFilters({ onFilterChange }: MarketplaceFiltersProps) 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [search, gameType, condition, onFilterChange]);
+  }, [search, gameType, condition, onFilterChange, listingsDataKey]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 mb-8">
@@ -65,7 +67,7 @@ export function MarketplaceFilters({ onFilterChange }: MarketplaceFiltersProps) 
         />
       </div>
 
-      <Select value={gameType} onValueChange={v => setGameType(v as GameType | 'all')}>
+      <Select value={gameType} onValueChange={(v: string) => setGameType(v as GameType | 'all')}>
         <SelectTrigger className="w-full sm:w-44">
           <SelectValue placeholder="Game" />
         </SelectTrigger>
@@ -78,7 +80,10 @@ export function MarketplaceFilters({ onFilterChange }: MarketplaceFiltersProps) 
         </SelectContent>
       </Select>
 
-      <Select value={condition} onValueChange={v => setCondition(v as CardCondition | 'all')}>
+      <Select
+        value={condition}
+        onValueChange={(v: string) => setCondition(v as CardCondition | 'all')}
+      >
         <SelectTrigger className="w-full sm:w-52">
           <SelectValue placeholder="Condition" />
         </SelectTrigger>

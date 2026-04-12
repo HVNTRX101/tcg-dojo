@@ -46,3 +46,8 @@ export interface CartSummary {
   total: number;
   itemCount: number;
 }
+
+export type LocalCartSyncItem = Pick<CartItem, 'productId' | 'quantity'> & {
+  condition?: string;
+  sellerId?: string;
+};

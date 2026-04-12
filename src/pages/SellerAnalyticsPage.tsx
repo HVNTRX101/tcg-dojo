@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiClient } from '../services/api';
+import { errorMessageFromUnknown } from '../utils/errorMessage';
 
 interface DashboardData {
   products: {
@@ -60,8 +61,8 @@ export default function SellerAnalyticsPage() {
 
       setDashboardData(dashboard);
       setPerformanceData(performance);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(errorMessageFromUnknown(err, 'Failed to load analytics'));
     } finally {
       setLoading(false);
     }

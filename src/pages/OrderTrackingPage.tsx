@@ -255,7 +255,10 @@ export default function OrderTrackingPage() {
       </Card>
 
       {/* Order Tracking Dialog */}
-      <Dialog open={!!selectedOrder} onOpenChange={open => !open && setSelectedOrder(null)}>
+      <Dialog
+        open={!!selectedOrder}
+        onOpenChange={(open: boolean) => !open && setSelectedOrder(null)}
+      >
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Order Tracking</DialogTitle>

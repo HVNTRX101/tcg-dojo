@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cartService } from '../services/cart.service';
-import { AddToCartRequest, UpdateCartItemRequest } from '../types/cart.types';
+import { AddToCartRequest, LocalCartSyncItem, UpdateCartItemRequest } from '../types/cart.types';
+import { isApiError } from '../types/api.types';
 
 // Query keys
 export const cartKeys = {
@@ -15,9 +16,9 @@ export const useCart = () => {
     queryKey: cartKeys.cart(),
     queryFn: () => cartService.getCart(),
     staleTime: 1 * 60 * 1000, // 1 minute
-    retry: (failureCount, error: any) => {
-      if (error?.status === 401) {
-        return false; // Don't retry on 401
+    retry: (failureCount, error: unknown) => {
+      if (isApiError(error) && error.status === 401) {
+        return false;
       }
       return failureCount < 2;
     },
@@ -133,7 +134,7 @@ export const useSyncCart = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (localCartItems: any[]) => cartService.syncCart(localCartItems),
+    mutationFn: (localCartItems: LocalCartSyncItem[]) => cartService.syncCart(localCartItems),
     onSuccess: () => {
       // Invalidate cart queries to refetch
       queryClient.invalidateQueries({ queryKey: cartKeys.cart() });

@@ -21,6 +21,15 @@ export interface ApiError {
   status?: number;
 }
 
+export function isApiError(value: unknown): value is ApiError {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'message' in value &&
+    typeof (value as { message: unknown }).message === 'string'
+  );
+}
+
 // Request Types
 export interface PaginationParams {
   page?: number;

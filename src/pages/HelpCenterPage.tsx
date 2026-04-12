@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Package,
@@ -11,10 +11,8 @@ import {
   MessageCircle,
   Book,
 } from 'lucide-react';
-import Header from '../components/Header';
-
 interface HelpCategory {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   description: string;
   link: string;
@@ -68,11 +66,9 @@ const popularArticles = [
   'Return policy and procedures',
 ];
 
-const HelpCenterPage: React.FC = () => {
+function HelpCenterPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <div className="max-w-6xl mx-auto px-4 py-16 text-center">
@@ -204,6 +200,6 @@ const HelpCenterPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default HelpCenterPage;

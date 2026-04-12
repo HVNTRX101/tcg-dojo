@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -8,10 +8,10 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 import { useResetPassword } from '../hooks/useAuth';
 import { toast } from 'sonner';
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
+import { errorMessageFromUnknown } from '../utils/errorMessage';
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const token = searchParams.get('token');
 
   const [password, setPassword] = useState('');
@@ -22,12 +22,6 @@ export default function ResetPasswordPage() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const resetPassword = useResetPassword();
-
-  useEffect(() => {
-    if (!token) {
-      setValidationError('Invalid or missing reset token. Please request a new password reset link.');
-    }
-  }, [token]);
 
   const validateForm = () => {
     if (!password) {
@@ -72,11 +66,11 @@ export default function ResetPasswordPage() {
       toast.success('Password reset successful!', {
         description: 'You can now sign in with your new password.',
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to reset password. The link may have expired.';
+    } catch (error: unknown) {
+      const errorMessage = errorMessageFromUnknown(
+        error,
+        'Failed to reset password. The link may have expired.'
+      );
       setValidationError(errorMessage);
       toast.error('Password reset failed', {
         description: errorMessage,
@@ -93,9 +87,7 @@ export default function ResetPasswordPage() {
               <CheckCircle2 className="h-16 w-16 text-green-500" />
             </div>
             <CardTitle className="text-2xl">Password Reset Complete</CardTitle>
-            <CardDescription>
-              Your password has been successfully reset
-            </CardDescription>
+            <CardDescription>Your password has been successfully reset</CardDescription>
           </CardHeader>
           <CardContent>
             <Link to="/signin" className="w-full">
@@ -116,9 +108,7 @@ export default function ResetPasswordPage() {
               <AlertCircle className="h-16 w-16 text-red-500" />
             </div>
             <CardTitle className="text-2xl">Invalid Reset Link</CardTitle>
-            <CardDescription>
-              This password reset link is invalid or has expired
-            </CardDescription>
+            <CardDescription>This password reset link is invalid or has expired</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-muted-foreground text-center">
@@ -138,9 +128,7 @@ export default function ResetPasswordPage() {
       <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-2xl">Reset Your Password</CardTitle>
-          <CardDescription>
-            Enter your new password below
-          </CardDescription>
+          <CardDescription>Enter your new password below</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -201,16 +189,16 @@ export default function ResetPasswordPage() {
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={resetPassword.isPending}
-            >
+            <Button type="submit" className="w-full" disabled={resetPassword.isPending}>
               {resetPassword.isPending ? 'Resetting Password...' : 'Reset Password'}
             </Button>
 

@@ -45,6 +45,8 @@ export interface ProductFilter {
   sortBy?: string;
 }
 
+export type ProductFilters = ProductFilter;
+
 export interface PriceHistory {
   date: string;
   price: number;

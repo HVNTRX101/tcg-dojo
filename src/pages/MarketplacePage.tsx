@@ -1,13 +1,29 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Sparkles } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { MarketplaceFilters } from '../components/marketplace/MarketplaceFilters';
 import { MarketplaceGrid } from '../components/marketplace/MarketplaceGrid';
 import { getAllListings } from '../lib/firebase/marketplace-service';
 import type { CardCondition, GameType, Listing } from '../types';
 import { ANIMATION_DELAY, ANIMATION_DURATION } from '../constants';
 
+function gameSlugToGameType(slug: string | null): GameType | 'all' {
+  if (!slug) return 'all';
+  const normalized = slug.trim().toLowerCase();
+  if (normalized === 'magic') return 'MTG';
+  if (normalized === 'pokemon') return 'Pokemon';
+  if (normalized === 'yugioh') return 'Yu-Gi-Oh';
+  if (normalized === 'lorcana') return 'Lorcana';
+  return 'Other';
+}
+
 export default function MarketplacePage() {
+  const [searchParams] = useSearchParams();
+  const gameSlug = searchParams.get('game');
+  const setCode = searchParams.get('set') ?? '';
+  const initialGameType = useMemo(() => gameSlugToGameType(gameSlug), [gameSlug]);
+  const initialSearch = setCode.trim();
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [filtered, setFiltered] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +99,13 @@ export default function MarketplacePage() {
       </motion.div>
 
       {/* Filters */}
-      <MarketplaceFilters onFilterChange={handleFilterChange} />
+      <MarketplaceFilters
+        key={`${initialSearch}|${initialGameType}|${allListings.length}`}
+        onFilterChange={handleFilterChange}
+        initialSearch={initialSearch}
+        initialGameType={initialGameType}
+        listingsDataKey={allListings.length}
+      />
 
       {/* Grid */}
       {loading && (
@@ -91,9 +113,7 @@ export default function MarketplacePage() {
           <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       )}
-      {error && (
-        <div className="text-center py-16 text-destructive">{error}</div>
-      )}
+      {error && <div className="text-center py-16 text-destructive">{error}</div>}
       {!loading && !error && <MarketplaceGrid listings={filtered} />}
     </div>
   );

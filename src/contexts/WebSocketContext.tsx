@@ -26,16 +26,18 @@ interface WebSocketContextValue {
 
 const WebSocketContext = createContext<WebSocketContextValue | undefined>(undefined);
 
+type SocketPayload = Record<string, unknown>;
+
 interface WebSocketProviderProps {
   children: ReactNode;
-  onNewMessage?: (message: any) => void;
-  onNewNotification?: (notification: any) => void;
-  onOrderUpdate?: (order: any) => void;
+  onNewMessage?: (message: SocketPayload) => void;
+  onNewNotification?: (notification: SocketPayload) => void;
+  onOrderUpdate?: (order: SocketPayload) => void;
   onMessageRead?: (data: { conversationId: string; messageIds: string[] }) => void;
   onMessageDeleted?: (data: { conversationId: string; messageId: string }) => void;
   onNotificationRead?: (notificationId: string) => void;
   onNotificationsReadAll?: () => void;
-  onCommentNew?: (data: { entityType: string; entityId: string; comment: any }) => void;
+  onCommentNew?: (data: { entityType: string; entityId: string; comment: SocketPayload }) => void;
 }
 
 export function WebSocketProvider({
@@ -78,17 +80,21 @@ export function WebSocketProvider({
         onNewNotification: notification => {
           onNewNotification?.(notification);
 
-          // Show toast for new notification
-          toast.info(notification.message || 'New notification', {
-            description: notification.title,
+          const title = typeof notification.title === 'string' ? notification.title : undefined;
+          const message =
+            typeof notification.message === 'string' ? notification.message : 'New notification';
+          toast.info(message, {
+            description: title,
           });
         },
         onOrderUpdate: order => {
           onOrderUpdate?.(order);
 
-          // Show toast for order update
+          const orderId = typeof order.id === 'string' ? order.id : String(order.id ?? '');
+          const status =
+            typeof order.status === 'string' ? order.status : String(order.status ?? '');
           toast.success('Order status updated', {
-            description: `Order #${order.id} - ${order.status}`,
+            description: `Order #${orderId} - ${status}`,
           });
         },
         onTypingStart: ({ conversationId, userId }) => {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import * as RechartsPrimitive from 'recharts@2.15.2';
+import * as RechartsPrimitive from 'recharts';
 
 import { cn } from './utils';
 
@@ -164,18 +164,28 @@ function ChartTooltipContent({
         {payload.map((item, index) => {
           const key = `${nameKey || item.name || item.dataKey || 'value'}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
-          const indicatorColor = color || item.payload.fill || item.color;
+          const payloadFill =
+            item.payload && typeof item.payload === 'object' && 'fill' in item.payload
+              ? (item.payload as { fill?: string }).fill
+              : undefined;
+          const indicatorColor = color || payloadFill || item.color;
 
           return (
             <div
-              key={item.dataKey}
+              key={String(item.dataKey ?? index)}
               className={cn(
                 '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5',
                 indicator === 'dot' && 'items-center'
               )}
             >
               {formatter && item?.value !== undefined && item.name ? (
-                formatter(item.value, item.name, item, index, item.payload)
+                (formatter as (...formatterArgs: unknown[]) => React.ReactNode)(
+                  item.value,
+                  item.name,
+                  item,
+                  index,
+                  item.payload
+                )
               ) : (
                 <>
                   {itemConfig?.icon ? (

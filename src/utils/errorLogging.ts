@@ -16,15 +16,15 @@ export interface ErrorLogData {
   url: string;
   level: 'root' | 'route' | 'component' | 'api';
   userId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ApiErrorLogData extends Omit<ErrorLogData, 'componentStack'> {
   endpoint: string;
   method: string;
   statusCode?: number;
-  requestData?: any;
-  responseData?: any;
+  requestData?: unknown;
+  responseData?: unknown;
 }
 
 /**
@@ -45,7 +45,7 @@ export function logErrorToService(errorData: ErrorLogData): void {
     // Send to Sentry
     if (import.meta.env.VITE_SENTRY_DSN) {
       // Sanitize error data before sending
-      const sanitizedData = sanitizeErrorData(errorData);
+      const sanitizedData = sanitizeErrorData(errorData) as ErrorLogData;
 
       // Create error object with stack trace if available
       const error = new Error(sanitizedData.message);
@@ -91,9 +91,9 @@ export function logApiError(
   method: string,
   options?: {
     statusCode?: number;
-    requestData?: any;
-    responseData?: any;
-    metadata?: Record<string, any>;
+    requestData?: unknown;
+    responseData?: unknown;
+    metadata?: Record<string, unknown>;
   }
 ): void {
   const errorData: ApiErrorLogData = {
@@ -125,7 +125,7 @@ export function logComponentError(
   const errorData: ErrorLogData = {
     message: error.message,
     stack: error.stack,
-    componentStack: errorInfo.componentStack,
+    componentStack: errorInfo.componentStack ?? undefined,
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
     url: window.location.href,
@@ -163,9 +163,10 @@ export function setupGlobalErrorHandlers(): void {
 
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', event => {
+    const reason = event.reason as { message?: string; stack?: string } | undefined;
     const errorData: ErrorLogData = {
-      message: event.reason?.message || String(event.reason),
-      stack: event.reason?.stack,
+      message: reason?.message || String(event.reason),
+      stack: reason?.stack,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       url: window.location.href,
@@ -183,19 +184,25 @@ export function setupGlobalErrorHandlers(): void {
 /**
  * Sanitize error data to remove sensitive information
  */
-export function sanitizeErrorData(data: any): any {
-  if (!data) return data;
+export function sanitizeErrorData(data: unknown): unknown {
+  if (data === null || data === undefined) {
+    return data;
+  }
 
   const sensitiveKeys = ['password', 'token', 'apiKey', 'secret', 'authorization', 'cookie'];
 
-  if (typeof data === 'object') {
-    const sanitized = { ...data };
+  if (typeof data === 'object' && !Array.isArray(data)) {
+    const source = data as Record<string, unknown>;
+    const sanitized: Record<string, unknown> = { ...source };
 
-    for (const key in sanitized) {
+    for (const key of Object.keys(sanitized)) {
       if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
         sanitized[key] = '[REDACTED]';
-      } else if (typeof sanitized[key] === 'object') {
-        sanitized[key] = sanitizeErrorData(sanitized[key]);
+      } else {
+        const value = sanitized[key];
+        if (value !== null && typeof value === 'object') {
+          sanitized[key] = sanitizeErrorData(value);
+        }
       }
     }
 
@@ -234,14 +241,14 @@ export function addBreadcrumb(
   message: string,
   category: string,
   level: 'debug' | 'info' | 'warning' | 'error' = 'info',
-  data?: Record<string, any>
+  data?: Record<string, unknown>
 ): void {
   if (import.meta.env.VITE_SENTRY_DSN) {
     Sentry.addBreadcrumb({
       message,
       category,
       level,
-      data: data ? sanitizeErrorData(data) : undefined,
+      data: data ? (sanitizeErrorData(data) as Record<string, unknown>) : undefined,
     });
   }
 }
@@ -258,9 +265,9 @@ export function setTag(key: string, value: string): void {
 /**
  * Set custom context for errors
  */
-export function setContext(name: string, context: Record<string, any>): void {
+export function setContext(name: string, context: Record<string, unknown>): void {
   if (import.meta.env.VITE_SENTRY_DSN) {
-    Sentry.setContext(name, sanitizeErrorData(context));
+    Sentry.setContext(name, sanitizeErrorData(context) as Record<string, unknown>);
   }
 }
 

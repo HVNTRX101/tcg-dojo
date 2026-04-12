@@ -8,14 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Star, MapPin, Calendar, Package, MessageCircle, Heart, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Product } from '../types/product.types';
+import { generateAvatarPlaceholder, generateCardPlaceholder } from '../utils/cardPlaceholder';
 
 // Mock seller data
 const MOCK_SELLER = {
   id: '1',
   name: 'CardVault Pro',
   email: 'contact@cardvaultpro.com',
-  avatar:
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+  avatar: generateAvatarPlaceholder('CardVault Pro'),
   bio: 'Professional card dealer specializing in Magic: The Gathering, Pokemon, and Yu-Gi-Oh! cards. Over 10 years of experience in the TCG market.',
   location: 'San Francisco, CA',
   website: 'https://cardvaultpro.com',
@@ -41,7 +41,7 @@ const MOCK_LISTINGS: Product[] = [
     price: 299.99,
     condition: 'Near Mint',
     finish: 'Normal',
-    image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop',
+    image: generateCardPlaceholder('Lightning Bolt', 'Magic: The Gathering', 'Common'),
     seller: 'CardVault Pro',
     sellerRating: 4.9,
     quantity: 1,
@@ -56,7 +56,7 @@ const MOCK_LISTINGS: Product[] = [
     price: 67.99,
     condition: 'Near Mint',
     finish: 'Normal',
-    image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop',
+    image: generateCardPlaceholder('Liliana of the Veil', 'Magic: The Gathering', 'Mythic Rare'),
     seller: 'CardVault Pro',
     sellerRating: 4.9,
     quantity: 4,
@@ -71,7 +71,11 @@ const MOCK_LISTINGS: Product[] = [
     price: 62.0,
     condition: 'Near Mint',
     finish: 'Normal',
-    image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop',
+    image: generateCardPlaceholder(
+      'Ragavan, Nimble Pilferer',
+      'Magic: The Gathering',
+      'Mythic Rare'
+    ),
     seller: 'CardVault Pro',
     sellerRating: 4.9,
     quantity: 2,
@@ -84,35 +88,40 @@ const MOCK_REVIEWS = [
   {
     id: '1',
     buyerName: 'John D.',
-    buyerAvatar:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
+    buyerAvatar: generateAvatarPlaceholder('John D.'),
     rating: 5,
     comment: 'Excellent seller! Cards arrived in perfect condition and shipping was fast.',
     date: '2024-01-15',
     productName: 'Lightning Bolt',
-    productImage: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop',
+    productImage: generateCardPlaceholder('Lightning Bolt', 'Magic: The Gathering', 'Common'),
   },
   {
     id: '2',
     buyerName: 'Sarah M.',
-    buyerAvatar:
-      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
+    buyerAvatar: generateAvatarPlaceholder('Sarah M.'),
     rating: 5,
     comment: 'Great communication and packaging. Will definitely buy again!',
     date: '2024-01-10',
     productName: 'Liliana of the Veil',
-    productImage: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop',
+    productImage: generateCardPlaceholder(
+      'Liliana of the Veil',
+      'Magic: The Gathering',
+      'Mythic Rare'
+    ),
   },
   {
     id: '3',
     buyerName: 'Mike R.',
-    buyerAvatar:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
+    buyerAvatar: generateAvatarPlaceholder('Mike R.'),
     rating: 4,
     comment: 'Good seller, cards as described. Minor delay in shipping but overall satisfied.',
     date: '2024-01-05',
     productName: 'Ragavan, Nimble Pilferer',
-    productImage: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=60&h=60&fit=crop',
+    productImage: generateCardPlaceholder(
+      'Ragavan, Nimble Pilferer',
+      'Magic: The Gathering',
+      'Mythic Rare'
+    ),
   },
 ];
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -18,10 +18,9 @@ import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { ArrowLeft, CreditCard, Lock, CheckCircle } from 'lucide-react';
 import { useCart } from '../components/CartContext';
 import { motion } from 'motion/react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export default function CheckoutPage() {
-  const _navigate = useNavigate();
   const { cartItems, getCartTotal, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -215,7 +214,7 @@ export default function CheckoutPage() {
                       <Label htmlFor="state">State *</Label>
                       <Select
                         value={formData.state}
-                        onValueChange={value => handleInputChange('state', value)}
+                        onValueChange={(value: string) => handleInputChange('state', value)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select state" />
@@ -244,8 +243,8 @@ export default function CheckoutPage() {
                     <Checkbox
                       id="saveAddress"
                       checked={formData.saveAddress}
-                      onCheckedChange={checked =>
-                        handleInputChange('saveAddress', checked as boolean)
+                      onCheckedChange={(checked: boolean | 'indeterminate') =>
+                        handleInputChange('saveAddress', checked === true)
                       }
                     />
                     <Label htmlFor="saveAddress">Save this address for future orders</Label>
@@ -333,8 +332,8 @@ export default function CheckoutPage() {
                     <Checkbox
                       id="newsletter"
                       checked={formData.newsletter}
-                      onCheckedChange={checked =>
-                        handleInputChange('newsletter', checked as boolean)
+                      onCheckedChange={(checked: boolean | 'indeterminate') =>
+                        handleInputChange('newsletter', checked === true)
                       }
                     />
                     <Label htmlFor="newsletter">

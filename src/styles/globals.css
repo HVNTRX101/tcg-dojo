@@ -43,45 +43,45 @@
 
 .dark {
   --background: #000000;
-  --foreground: #F9F9F9;
+  --foreground: #f9f9f9;
   --card: #1a1a1a;
-  --card-foreground: #F9F9F9;
+  --card-foreground: #f9f9f9;
   --popover: #1a1a1a;
-  --popover-foreground: #F9F9F9;
-  --primary: #E85002;
+  --popover-foreground: #f9f9f9;
+  --primary: #e85002;
   --primary-foreground: #ffffff;
   --secondary: #333333;
-  --secondary-foreground: #F9F9F9;
+  --secondary-foreground: #f9f9f9;
   --muted: #333333;
-  --muted-foreground: #A7A7A7;
-  --accent: #F16001;
+  --muted-foreground: #a7a7a7;
+  --accent: #f16001;
   --accent-foreground: #000000;
-  --destructive: #C10801;
+  --destructive: #c10801;
   --destructive-foreground: #ffffff;
   --border: rgba(232, 80, 2, 0.2);
   --input: rgba(232, 80, 2, 0.1);
-  --ring: #E85002;
+  --ring: #e85002;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #E85002;
-  --chart-2: #F16001;
-  --chart-3: #C10801;
-  --chart-4: #D9C3AB;
+  --chart-1: #e85002;
+  --chart-2: #f16001;
+  --chart-3: #c10801;
+  --chart-4: #d9c3ab;
   --chart-5: #646464;
   --sidebar: #1a1a1a;
-  --sidebar-foreground: #F9F9F9;
-  --sidebar-primary: #E85002;
+  --sidebar-foreground: #f9f9f9;
+  --sidebar-primary: #e85002;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #333333;
-  --sidebar-accent-foreground: #F9F9F9;
+  --sidebar-accent-foreground: #f9f9f9;
   --sidebar-border: rgba(232, 80, 2, 0.2);
-  --sidebar-ring: #E85002;
-  --brand-orange: #E85002;
-  --brand-red: #C10801;
-  --brand-light-orange: #F16001;
-  --brand-beige: #D9C3AB;
+  --sidebar-ring: #e85002;
+  --brand-orange: #e85002;
+  --brand-red: #c10801;
+  --brand-light-orange: #f16001;
+  --brand-beige: #d9c3ab;
   --gray: #646464;
-  --light-gray: #A7A7A7;
+  --light-gray: #a7a7a7;
   --dark-gray: #333333;
 }
 
@@ -140,7 +140,7 @@
  * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
  */
 @layer base {
-  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
     h1 {
       font-size: var(--text-2xl);
       font-weight: var(--font-weight-medium);
@@ -198,18 +198,22 @@ html {
 
 /* Smooth transitions for theme switching */
 * {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Neon glow effects for dark mode */
 .dark {
   --neon-glow: 0 0 10px rgba(232, 80, 2, 0.5), 0 0 20px rgba(232, 80, 2, 0.3);
-  --neon-glow-strong: 0 0 15px rgba(232, 80, 2, 0.7), 0 0 30px rgba(232, 80, 2, 0.5), 0 0 45px rgba(232, 80, 2, 0.3);
+  --neon-glow-strong:
+    0 0 15px rgba(232, 80, 2, 0.7), 0 0 30px rgba(232, 80, 2, 0.5), 0 0 45px rgba(232, 80, 2, 0.3);
 }
 
 /* Gradient backgrounds for dark mode */
 .dark .gradient-primary {
-  background: linear-gradient(135deg, #E85002 0%, #F16001 100%);
+  background: linear-gradient(135deg, #e85002 0%, #f16001 100%);
 }
 
 .dark .gradient-card {
@@ -217,16 +221,22 @@ html {
 }
 
 .dark .gradient-brand {
-  background: linear-gradient(135deg, #000000 0%, #C10801 35%, #F16001 70%, #D9C3AB 100%);
+  background: linear-gradient(135deg, #000000 0%, #c10801 35%, #f16001 70%, #d9c3ab 100%);
 }
 
 /* Neon border animations */
 @keyframes neon-pulse {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(232, 80, 2, 0.5), 0 0 10px rgba(232, 80, 2, 0.3);
+  0%,
+  100% {
+    box-shadow:
+      0 0 5px rgba(232, 80, 2, 0.5),
+      0 0 10px rgba(232, 80, 2, 0.3);
   }
   50% {
-    box-shadow: 0 0 10px rgba(232, 80, 2, 0.7), 0 0 20px rgba(232, 80, 2, 0.5), 0 0 30px rgba(232, 80, 2, 0.3);
+    box-shadow:
+      0 0 10px rgba(232, 80, 2, 0.7),
+      0 0 20px rgba(232, 80, 2, 0.5),
+      0 0 30px rgba(232, 80, 2, 0.3);
   }
 }
 
@@ -284,10 +294,10 @@ html {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #E85002 0%, #F16001 100%);
+  background: linear-gradient(180deg, #e85002 0%, #f16001 100%);
   border-radius: 5px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #F16001 0%, #E85002 100%);
+  background: linear-gradient(180deg, #f16001 0%, #e85002 100%);
 }

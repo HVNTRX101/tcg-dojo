@@ -3,6 +3,7 @@ import { authService } from '../services/auth.service';
 import { LoginCredentials, SignupCredentials, UserProfile } from '../types/user.types';
 import { AuthResponse } from '../types/user.types';
 import { authToken, refreshToken } from '../services/api';
+import { isApiError } from '../types/api.types';
 
 // Query keys
 export const authKeys = {
@@ -18,9 +19,9 @@ export const useCurrentUser = () => {
     queryFn: () => authService.getCurrentUser(),
     enabled: !!authToken.get(),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: (failureCount, error: any) => {
-      if (error?.status === 401) {
-        return false; // Don't retry on 401
+    retry: (failureCount, error: unknown) => {
+      if (isApiError(error) && error.status === 401) {
+        return false;
       }
       return failureCount < 3;
     },

@@ -10,9 +10,7 @@ export function MarketplaceGrid({ listings }: MarketplaceGridProps) {
     return (
       <div className="text-center py-16">
         <p className="text-muted-foreground text-lg">No listings found.</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Try adjusting your search or filters.
-        </p>
+        <p className="text-sm text-muted-foreground mt-2">Try adjusting your search or filters.</p>
       </div>
     );
   }

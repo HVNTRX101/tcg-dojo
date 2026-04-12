@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { PAGINATION_CONFIG } from '../constants';

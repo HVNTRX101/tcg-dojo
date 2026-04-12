@@ -7,13 +7,15 @@ import { io, Socket } from 'socket.io-client';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+type SocketPayload = Record<string, unknown>;
+
 interface SocketEventHandlers {
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
-  onNewMessage?: (message: any) => void;
-  onNewNotification?: (notification: any) => void;
-  onOrderUpdate?: (order: any) => void;
+  onNewMessage?: (message: SocketPayload) => void;
+  onNewNotification?: (notification: SocketPayload) => void;
+  onOrderUpdate?: (order: SocketPayload) => void;
   onTypingStart?: (data: { conversationId: string; userId: string }) => void;
   onTypingStop?: (data: { conversationId: string; userId: string }) => void;
   onUserStatusChanged?: (data: { userId: string; status: 'online' | 'offline' }) => void;
@@ -21,8 +23,8 @@ interface SocketEventHandlers {
   onMessageDeleted?: (data: { conversationId: string; messageId: string }) => void;
   onNotificationRead?: (notificationId: string) => void;
   onNotificationsReadAll?: () => void;
-  onCommentNew?: (data: { entityType: string; entityId: string; comment: any }) => void;
-  onCommentUpdated?: (data: { commentId: string; comment: any }) => void;
+  onCommentNew?: (data: { entityType: string; entityId: string; comment: SocketPayload }) => void;
+  onCommentUpdated?: (data: { commentId: string; comment: SocketPayload }) => void;
   onCommentDeleted?: (data: { commentId: string }) => void;
   onCommentLiked?: (data: { commentId: string; userId: string; likesCount: number }) => void;
   onCommentUnliked?: (data: { commentId: string; userId: string; likesCount: number }) => void;
@@ -73,6 +75,9 @@ class WebSocketService {
     });
 
     this.socket.on('disconnect', () => {
+      if (this.isIntentionalDisconnect) {
+        this.isIntentionalDisconnect = false;
+      }
       this.eventHandlers.onDisconnect?.();
     });
 

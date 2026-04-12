@@ -17,6 +17,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import type { User } from '../types/user.types';
+
+function userPublicName(user: User): string {
+  const combined = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+  return combined || user.email;
+}
 
 interface CommentSectionProps {
   entityType: 'product' | 'review' | 'activity';
@@ -231,8 +237,10 @@ export function CommentSection({ entityType, entityId, className }: CommentSecti
           {replyingTo === comment.id && (
             <div className="mt-3 flex gap-2">
               <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={user?.avatarUrl} />
-                <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback>
+                  {user ? userPublicName(user).charAt(0).toUpperCase() : '?'}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <Textarea
@@ -277,8 +285,10 @@ export function CommentSection({ entityType, entityId, className }: CommentSecti
         <div className="mb-6">
           <div className="flex gap-3">
             <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage src={user?.avatarUrl} />
-              <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
+              <AvatarImage src={user?.avatar} />
+              <AvatarFallback>
+                {user ? userPublicName(user).charAt(0).toUpperCase() : '?'}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <Textarea

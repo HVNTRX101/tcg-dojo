@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
-import Header from '../components/Header';
 
 interface FAQItem {
   id: string;
@@ -117,7 +116,7 @@ const faqData: FAQItem[] = [
 
 const categories = Array.from(new Set(faqData.map(item => item.category)));
 
-const FAQPage: React.FC = () => {
+function FAQPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -132,8 +131,6 @@ const FAQPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -228,6 +225,6 @@ const FAQPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default FAQPage;

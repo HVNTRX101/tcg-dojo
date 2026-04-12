@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiClient } from '../services/api';
+import { errorMessageFromUnknown } from '../utils/errorMessage';
 
 interface DashboardData {
   users: {
@@ -40,8 +41,8 @@ export default function AdminDashboardPage() {
     try {
       const data = await apiClient.get<DashboardData>('/admin/dashboard');
       setDashboardData(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(errorMessageFromUnknown(err, 'Failed to load dashboard'));
     } finally {
       setLoading(false);
     }

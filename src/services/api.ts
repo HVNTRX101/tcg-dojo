@@ -85,13 +85,13 @@ export const apiClient = {
   get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
     api.get(url, config).then(response => response.data),
 
-  post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
     api.post(url, data, config).then(response => response.data),
 
-  put: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
     api.put(url, data, config).then(response => response.data),
 
-  patch: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+  patch: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
     api.patch(url, data, config).then(response => response.data),
 
   delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>

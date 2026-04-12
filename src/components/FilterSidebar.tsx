@@ -191,7 +191,7 @@ export function FilterSidebar({
                 </div>
                 <Slider
                   value={priceRange}
-                  onValueChange={value => onPriceRangeChange(value as [number, number])}
+                  onValueChange={(value: number[]) => onPriceRangeChange(value as [number, number])}
                   max={PRICE_RANGE.MAX}
                   min={PRICE_RANGE.MIN}
                   step={PRICE_RANGE.STEP}

@@ -68,10 +68,7 @@ export function MarketplaceCard({ listing }: MarketplaceCardProps) {
             <div>
               <h3 className="line-clamp-2 mb-1">{listing.cardName}</h3>
               <div className="flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={`text-xs ${conditionColor[listing.condition]}`}
-                >
+                <Badge variant="outline" className={`text-xs ${conditionColor[listing.condition]}`}>
                   {conditionLabel[listing.condition]}
                 </Badge>
                 {listing.quantity > 1 && (
@@ -101,12 +98,11 @@ export function MarketplaceCard({ listing }: MarketplaceCardProps) {
             </div>
 
             {/* Buy button */}
-            <motion.div whileHover={{ scale: MOTION_SCALE.HOVER }} whileTap={{ scale: MOTION_SCALE.TAP }}>
-              <Button
-                size="sm"
-                className="w-full dark:bg-gradient-primary dark:border-0"
-                asChild
-              >
+            <motion.div
+              whileHover={{ scale: MOTION_SCALE.HOVER }}
+              whileTap={{ scale: MOTION_SCALE.TAP }}
+            >
+              <Button size="sm" className="w-full dark:bg-gradient-primary dark:border-0" asChild>
                 <Link to={`/products/${listing.cardId}`}>Buy Now</Link>
               </Button>
             </motion.div>

@@ -10,6 +10,7 @@ import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useSignup } from '../hooks/useAuth';
+import { errorMessageFromUnknown } from '../utils/errorMessage';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -89,8 +90,8 @@ export default function SignupPage() {
 
       toast.success('Account created successfully!');
       navigate('/');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create account');
+    } catch (error: unknown) {
+      toast.error(errorMessageFromUnknown(error, 'Failed to create account'));
     }
   };
 
@@ -237,8 +238,8 @@ export default function SignupPage() {
                   <Checkbox
                     id="agreeToTerms"
                     checked={formData.agreeToTerms}
-                    onCheckedChange={checked =>
-                      handleInputChange('agreeToTerms', checked as boolean)
+                    onCheckedChange={(checked: boolean | 'indeterminate') =>
+                      handleInputChange('agreeToTerms', checked === true)
                     }
                     className="mt-1"
                   />
@@ -261,7 +262,9 @@ export default function SignupPage() {
                   <Checkbox
                     id="newsletter"
                     checked={formData.newsletter}
-                    onCheckedChange={checked => handleInputChange('newsletter', checked as boolean)}
+                    onCheckedChange={(checked: boolean | 'indeterminate') =>
+                      handleInputChange('newsletter', checked === true)
+                    }
                   />
                   <Label htmlFor="newsletter" className="text-sm">
                     Subscribe to our newsletter for updates and special offers

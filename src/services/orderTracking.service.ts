@@ -1,4 +1,5 @@
 import { apiClient } from './api';
+import type { Address } from '../types/user.types';
 
 /**
  * Order Tracking Service
@@ -11,7 +12,7 @@ export interface Order {
   totalAmount: number;
   status: string;
   trackingNumber?: string;
-  shippingAddress: any;
+  shippingAddress: Address;
   items: OrderItem[];
   createdAt: string;
   updatedAt: string;

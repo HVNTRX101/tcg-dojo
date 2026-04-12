@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { useVerifyEmail, useResendVerification } from '../hooks/useAuth';
 import { toast } from 'sonner';
 import { CheckCircle2, AlertCircle, Mail, Loader2 } from 'lucide-react';
+import { errorMessageFromUnknown } from '../utils/errorMessage';
 
 export default function EmailVerificationPage() {
   const [searchParams] = useSearchParams();
@@ -40,12 +41,12 @@ export default function EmailVerificationPage() {
       setTimeout(() => {
         navigate('/');
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setVerificationState('error');
-      const errorMsg =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to verify email. The link may have expired.';
+      const errorMsg = errorMessageFromUnknown(
+        error,
+        'Failed to verify email. The link may have expired.'
+      );
       setErrorMessage(errorMsg);
       toast.error('Verification failed', {
         description: errorMsg,
@@ -59,11 +60,8 @@ export default function EmailVerificationPage() {
       toast.success('Verification email sent!', {
         description: 'Please check your email inbox for the new verification link.',
       });
-    } catch (error: any) {
-      const errorMsg =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to resend verification email.';
+    } catch (error: unknown) {
+      const errorMsg = errorMessageFromUnknown(error, 'Failed to resend verification email.');
       toast.error('Resend failed', {
         description: errorMsg,
       });
@@ -79,9 +77,7 @@ export default function EmailVerificationPage() {
               <Loader2 className="h-16 w-16 text-blue-500 animate-spin" />
             </div>
             <CardTitle className="text-2xl">Verifying Your Email</CardTitle>
-            <CardDescription>
-              Please wait while we verify your email address...
-            </CardDescription>
+            <CardDescription>Please wait while we verify your email address...</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -97,9 +93,7 @@ export default function EmailVerificationPage() {
               <CheckCircle2 className="h-16 w-16 text-green-500" />
             </div>
             <CardTitle className="text-2xl">Email Verified!</CardTitle>
-            <CardDescription>
-              Your email address has been successfully verified
-            </CardDescription>
+            <CardDescription>Your email address has been successfully verified</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-muted-foreground text-center">
@@ -125,7 +119,7 @@ export default function EmailVerificationPage() {
           </div>
           <CardTitle className="text-2xl">Verification Failed</CardTitle>
           <CardDescription>
-            {errorMessage || 'We couldn\'t verify your email address'}
+            {errorMessage || "We couldn't verify your email address"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

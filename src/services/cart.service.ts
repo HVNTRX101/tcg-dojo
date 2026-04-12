@@ -5,6 +5,7 @@ import {
   AddToCartRequest,
   UpdateCartItemRequest,
   CartSummary,
+  LocalCartSyncItem,
 } from '../types/cart.types';
 
 export const cartService = {
@@ -51,7 +52,7 @@ export const cartService = {
   },
 
   // Sync local cart with server (for offline support)
-  syncCart: (localCartItems: any[]): Promise<CartResponse> => {
+  syncCart: (localCartItems: LocalCartSyncItem[]): Promise<CartResponse> => {
     return apiClient.post('/cart/sync', { items: localCartItems });
   },
 };

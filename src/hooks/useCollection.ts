@@ -1,5 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { collectionService, CollectionFilters } from '../services/collection.service';
+import { isApiError } from '../types/api.types';
+
+type CollectionItemPayload = {
+  quantity?: number;
+  condition?: string;
+  finish?: string;
+  notes?: string;
+};
 
 // Query keys
 export const collectionKeys = {
@@ -15,9 +23,9 @@ export const useCollection = (filters: CollectionFilters = {}) => {
     queryKey: collectionKeys.items(filters),
     queryFn: () => collectionService.getCollection(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: (failureCount, error: any) => {
-      if (error?.status === 401) {
-        return false; // Don't retry on 401
+    retry: (failureCount, error: unknown) => {
+      if (isApiError(error) && error.status === 401) {
+        return false;
       }
       return failureCount < 2;
     },
@@ -45,7 +53,7 @@ export const useAddToCollection = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ productId, data }: { productId: string; data?: any }) =>
+    mutationFn: ({ productId, data }: { productId: string; data?: CollectionItemPayload }) =>
       collectionService.addToCollection(productId, data),
     onSuccess: () => {
       // Invalidate collection queries to refetch
@@ -61,7 +69,7 @@ export const useUpdateCollectionItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ itemId, data }: { itemId: string; data: any }) =>
+    mutationFn: ({ itemId, data }: { itemId: string; data: CollectionItemPayload }) =>
       collectionService.updateCollectionItem(itemId, data),
     onSuccess: () => {
       // Invalidate collection queries to refetch

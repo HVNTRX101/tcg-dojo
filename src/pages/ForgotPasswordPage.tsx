@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 import { useRequestPasswordReset } from '../hooks/useAuth';
 import { toast } from 'sonner';
 import { Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { errorMessageFromUnknown } from '../utils/errorMessage';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -44,11 +45,11 @@ export default function ForgotPasswordPage() {
       toast.success('Password reset email sent!', {
         description: 'Check your email for instructions to reset your password.',
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to send password reset email. Please try again.';
+    } catch (error: unknown) {
+      const errorMessage = errorMessageFromUnknown(
+        error,
+        'Failed to send password reset email. Please try again.'
+      );
       setValidationError(errorMessage);
       toast.error('Request failed', {
         description: errorMessage,
@@ -66,14 +67,13 @@ export default function ForgotPasswordPage() {
             </div>
             <CardTitle className="text-2xl">Check Your Email</CardTitle>
             <CardDescription>
-              We've sent password reset instructions to <strong>{email}</strong>
+              {"We've sent password reset instructions to "}
+              <strong>{email}</strong>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-muted-foreground text-center">
-              <p>
-                If you don't see the email, check your spam folder or request a new link.
-              </p>
+              <p>{"If you don't see the email, check your spam folder or request a new link."}</p>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -102,7 +102,7 @@ export default function ForgotPasswordPage() {
           </Link>
           <CardTitle className="text-2xl">Forgot Password?</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you instructions to reset your password.
+            {"Enter your email address and we'll send you instructions to reset your password."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -131,11 +131,7 @@ export default function ForgotPasswordPage() {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={requestReset.isPending}
-            >
+            <Button type="submit" className="w-full" disabled={requestReset.isPending}>
               {requestReset.isPending ? 'Sending...' : 'Send Reset Instructions'}
             </Button>
 

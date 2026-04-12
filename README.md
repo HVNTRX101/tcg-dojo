@@ -9,6 +9,16 @@
 
   Run `npm run dev` to start the development server.
 
+  ## TCG Dojo HQ (herramienta personal)
+
+  Tablero gamificado de progreso local (Vite + React) en la carpeta `dojo-hq/`. No forma parte del despliegue principal del marketplace.
+
+  ```bash
+  cd dojo-hq && npm install && npm run dev
+  ```
+
+  Detalles: [`dojo-hq/README.md`](dojo-hq/README.md).
+
   ## Error Monitoring with Sentry
 
   This application includes Sentry error monitoring for both frontend and backend. To set up Sentry:

@@ -13,7 +13,8 @@ export default function UnauthorizedPage() {
   const location = useLocation();
   const { user } = useAuth();
 
-  const from = (location.state as any)?.from?.pathname || '/';
+  const locationState = location.state as { from?: { pathname: string } } | null | undefined;
+  const from = locationState?.from?.pathname ?? '/';
 
   return (
     <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-screen">
@@ -23,9 +24,7 @@ export default function UnauthorizedPage() {
             <ShieldAlert className="h-16 w-16 text-red-500" />
           </div>
           <CardTitle className="text-2xl">Access Denied</CardTitle>
-          <CardDescription>
-            You don't have permission to access this resource
-          </CardDescription>
+          <CardDescription>{"You don't have permission to access this resource"}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center text-sm text-muted-foreground">
@@ -38,7 +37,7 @@ export default function UnauthorizedPage() {
                   Your current role: <strong>{user.role || 'USER'}</strong>
                 </p>
                 <p className="mt-4">
-                  The page you're trying to access requires different permissions.
+                  {"The page you're trying to access requires different permissions."}
                 </p>
               </>
             ) : (

@@ -1,5 +1,6 @@
 import { apiClient } from './api';
 import { Product, ProductListing } from '../types/product.types';
+import type { PaginatedResponse } from '../types/api.types';
 
 export interface SellerProfile {
   id: string;
@@ -60,7 +61,10 @@ export const sellerService = {
       page?: number;
       limit?: number;
     } = {}
-  ): Promise<{ listings: ProductListing[]; pagination: any }> => {
+  ): Promise<{
+    listings: ProductListing[];
+    pagination: PaginatedResponse<ProductListing>['pagination'];
+  }> => {
     const params = new URLSearchParams();
 
     Object.entries(filters).forEach(([key, value]) => {
@@ -79,7 +83,7 @@ export const sellerService = {
     limit: number = 10
   ): Promise<{
     reviews: SellerReview[];
-    pagination: any;
+    pagination: PaginatedResponse<SellerReview>['pagination'];
   }> => {
     return apiClient.get(`/sellers/${sellerId}/reviews?page=${page}&limit=${limit}`);
   },

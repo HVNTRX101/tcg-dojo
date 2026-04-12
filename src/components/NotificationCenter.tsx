@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService, Notification } from '../services/notification.service';
@@ -200,8 +200,8 @@ export function NotificationCenter() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
-                              onClick={e => {
-                                e.stopPropagation();
+                              onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                                event.stopPropagation();
                                 markAsReadMutation.mutate(notification.id);
                               }}
                             >
@@ -212,8 +212,8 @@ export function NotificationCenter() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={e => {
-                              e.stopPropagation();
+                            onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                              event.stopPropagation();
                               deleteNotificationMutation.mutate(notification.id);
                             }}
                           >

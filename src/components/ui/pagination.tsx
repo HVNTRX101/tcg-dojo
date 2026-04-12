@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react@0.487.0';
+import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
 
 import { cn } from './utils';
 import { Button, buttonVariants } from './button';
@@ -53,7 +53,9 @@ function PaginationLink({ className, isActive, size = 'icon', ...props }: Pagina
   );
 }
 
-function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof PaginationLink>) {
+type PaginationNavLinkProps = Omit<React.ComponentProps<typeof PaginationLink>, 'size'>;
+
+function PaginationPrevious({ className, ...props }: PaginationNavLinkProps) {
   return (
     <PaginationLink
       aria-label="Go to previous page"
@@ -67,7 +69,7 @@ function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
-function PaginationNext({ className, ...props }: React.ComponentProps<typeof PaginationLink>) {
+function PaginationNext({ className, ...props }: PaginationNavLinkProps) {
   return (
     <PaginationLink
       aria-label="Go to next page"
