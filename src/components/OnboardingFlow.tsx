@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface OnboardingStep {
@@ -17,7 +17,7 @@ interface OnboardingFlowProps {
 const onboardingSteps: OnboardingStep[] = [
   {
     id: 1,
-    title: 'Welcome to TCG Marketplace!',
+    title: 'Welcome to TCG Dojo!',
     description: 'Discover, buy, and sell trading cards from all your favorite games in one place.',
   },
   {
@@ -52,7 +52,7 @@ const onboardingSteps: OnboardingStep[] = [
   },
 ];
 
-const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) => {
+function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
@@ -173,6 +173,6 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
       </div>
     </div>
   );
-};
+}
 
 export default OnboardingFlow;

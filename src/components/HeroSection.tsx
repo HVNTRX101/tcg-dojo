@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Button } from './ui/button';
 import { Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { PriceTicker } from './PriceTicker';
 import { Card } from '../types/product.types';
 import { ANIMATION_DURATION, ANIMATION_DELAY } from '../constants';
@@ -10,6 +11,8 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ cards }: HeroSectionProps) {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -23,10 +26,7 @@ export function HeroSection({ cards }: HeroSectionProps) {
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: ANIMATION_DURATION.EXTENDED, ease: 'easeOut' }}
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb2tlbW9uJTIwY2FyZHMlMjBjb2xsZWN0aW9ufGVufDF8fHx8MTc2MDcxMDYwOHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral')`,
-          }}
+          className="absolute inset-0 bg-gradient-to-br from-amber-900/50 via-orange-800/30 to-violet-900/40 dark:from-orange-950/60 dark:via-background/80 dark:to-purple-950/50"
         />
         {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background dark:from-black/80 dark:via-black/60 dark:to-background" />
@@ -54,7 +54,7 @@ export function HeroSection({ cards }: HeroSectionProps) {
             className="inline-flex items-center gap-2 bg-white/20 dark:bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
           >
             <Sparkles className="w-4 h-4 text-orange-300" />
-            <span className="text-sm text-white">The Premier TCG Marketplace</span>
+            <span className="text-sm text-white">The Premier TCG Dojo</span>
           </motion.div>
 
           <motion.h1
@@ -85,6 +85,7 @@ export function HeroSection({ cards }: HeroSectionProps) {
             <Button
               size="lg"
               className="bg-white text-orange-600 hover:bg-white/90 dark:bg-[#E85002] dark:text-white dark:hover:bg-[#F16001] shadow-lg"
+              onClick={() => navigate('/marketplace')}
             >
               Start Collecting
             </Button>
@@ -92,6 +93,7 @@ export function HeroSection({ cards }: HeroSectionProps) {
               size="lg"
               variant="outline"
               className="bg-white/10 text-white border-white/30 hover:bg-white/20 backdrop-blur-sm"
+              onClick={() => navigate('/marketplace')}
             >
               Browse Cards
             </Button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Package,
   FileText,
@@ -30,10 +30,10 @@ export function AccountPage({ onClose }: AccountPageProps = {}) {
     { id: 'store-credit', label: 'Store Credit', icon: Star },
     { id: 'permissions', label: 'Permissions', icon: Shield },
     { id: 'email-preferences', label: 'Email Preferences', icon: Mail },
-    { id: 'subscription', label: 'TCGplayer Subscription', icon: Star },
+    { id: 'subscription', label: 'TCG Dojo Subscription', icon: Star },
     { id: 'messages', label: 'Messages', icon: MessageSquare, external: true },
     { id: 'seller-portal', label: 'Seller Portal', icon: Book, external: true },
-    { id: 'buylist', label: 'TCGplayer Buylist', icon: Package, external: true },
+    { id: 'buylist', label: 'TCG Dojo Buylist', icon: Package, external: true },
     { id: 'refund-return', label: 'Refund/Return Policy', icon: Shield, external: true },
     { id: 'collection', label: 'Collection', icon: Book, external: true },
     { id: 'help-faq', label: 'Help/FAQ', icon: MessageSquare, external: true },
@@ -78,7 +78,7 @@ export function AccountPage({ onClose }: AccountPageProps = {}) {
               </div>
               <h3 className="text-blue-900 mb-2">BUILT ON TRUST</h3>
               <div className="text-xs text-gray-600 mb-4">
-                TCGPLAYER
+                TCG DOJO
                 <br />
                 PARTNERSHIP
               </div>
@@ -126,15 +126,13 @@ export function AccountPage({ onClose }: AccountPageProps = {}) {
                     <p className="text-sm text-gray-600">Click here to view your order history</p>
                   </div>
 
-                  {/* Sell with TCGplayer Card */}
+                  {/* Sell with TCG Dojo Card */}
                   <div className="border-2 border-gray-200 rounded-lg p-8 text-center hover:border-blue-300 transition-colors cursor-pointer">
                     <div className="mb-4 flex justify-center">
                       <DollarSign className="w-16 h-16 text-gray-300" />
                     </div>
-                    <h3 className="text-green-600 mb-2">Sell with TCGplayer</h3>
-                    <p className="text-sm text-gray-600">
-                      Click here to start selling on TCGplayer
-                    </p>
+                    <h3 className="text-green-600 mb-2">Sell with TCG Dojo</h3>
+                    <p className="text-sm text-gray-600">Click here to start selling on TCG Dojo</p>
                   </div>
                 </div>
               </div>

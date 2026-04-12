@@ -176,7 +176,7 @@ export default function HomePage() {
           />
 
           <div className="mb-8">
-            <h1 className="mb-2">TCG Marketplace</h1>
+            <h1 className="mb-2">TCG Dojo</h1>
             <p className="text-muted-foreground">
               Buy and sell trading cards from Magic: The Gathering, Pokemon, Yu-Gi-Oh! and more
             </p>

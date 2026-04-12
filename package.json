@@ -57,7 +57,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "@types/react": "^19.2.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vitejs/plugin-react-swc": "^3.10.2",
@@ -69,6 +70,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
+    "typescript": "^5.7.3",
     "vite": "^8.0.8"
   },
   "scripts": {
@@ -82,11 +84,11 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "src/**/*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{css,json}": [
+    "src/**/*.{css,json}": [
       "prettier --write"
     ]
   }

@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { useCart } from './CartContext';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import type { Card as TCGCard } from '../types/product.types';
 import { ANIMATION_DURATION, MOTION_SCALE, MOTION_Y_OFFSET, CARD_SIZES } from '../constants';
 
@@ -54,8 +55,10 @@ export function ProductCard({ product, onViewDetails: _onViewDetails }: ProductC
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     addToCart(product, 1);
+    toast.success(`${product.name} added to cart!`);
   };
 
   return (

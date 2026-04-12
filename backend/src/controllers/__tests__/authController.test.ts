@@ -3,19 +3,21 @@ import express, { Express } from 'express';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from '../../routes/authRoutes';
 import { TestDataFactory } from '../../__tests__/helpers/factories';
+import { generateAccessToken } from '../../utils/jwt';
 
 // Create a test app
 const createTestApp = (): Express => {
   const app = express();
   app.use(express.json());
   app.use('/api/auth', authRoutes);
+  app.use((err: any, req: any, res: any, next: any) => {
+    res.status(err.statusCode || err.status || 500).json({ error: err.message });
+  });
   return app;
 };
 
-// NOTE: These are integration tests that require a live database connection.
-// Routes have also been updated since this test was written (/register -> /signup,
-// firstName/lastName -> name). Skipped until the test environment has a DB and routes are aligned.
-describe.skip('Auth Controller Integration Tests', () => {
+// NOTE: These are integration tests that require a live database connection or an active sqlite test db configuration.
+describe('Auth Controller Integration Tests', () => {
   let app: Express;
   let prisma: PrismaClient;
   let factory: TestDataFactory;
@@ -34,41 +36,34 @@ describe.skip('Auth Controller Integration Tests', () => {
     await prisma.$disconnect();
   });
 
-  describe('POST /api/auth/register', () => {
+  describe('POST /api/auth/signup', () => {
     it('should register a new user successfully', async () => {
       const userData = {
         email: 'newuser@example.com',
         password: 'SecurePass123!',
-        firstName: 'John',
-        lastName: 'Doe',
+        name: 'John Doe',
       };
 
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(userData)
-        .expect('Content-Type', /json/);
+        .expect('Content-Type', /json/)
+        .expect(201);
 
-      // Note: Actual status depends on your implementation
-      // Adjust the expected status based on your API
-      expect([200, 201]).toContain(response.status);
-
-      if (response.status === 200 || response.status === 201) {
-        expect(response.body).toHaveProperty('user');
-        expect(response.body.user).toHaveProperty('email', userData.email);
-        expect(response.body.user).not.toHaveProperty('password');
-      }
+      expect(response.body).toHaveProperty('user');
+      expect(response.body.user).toHaveProperty('email', userData.email);
+      expect(response.body.user).not.toHaveProperty('password');
     });
 
     it('should reject registration with invalid email', async () => {
       const userData = {
         email: 'invalid-email',
         password: 'SecurePass123!',
-        firstName: 'John',
-        lastName: 'Doe',
+        name: 'John Doe',
       };
 
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(userData)
         .expect('Content-Type', /json/);
 
@@ -79,12 +74,11 @@ describe.skip('Auth Controller Integration Tests', () => {
       const userData = {
         email: 'newuser@example.com',
         password: '123', // Weak password
-        firstName: 'John',
-        lastName: 'Doe',
+        name: 'John Doe',
       };
 
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(userData)
         .expect('Content-Type', /json/);
 
@@ -100,12 +94,11 @@ describe.skip('Auth Controller Integration Tests', () => {
       const userData = {
         email: 'existing@example.com',
         password: 'SecurePass123!',
-        firstName: 'John',
-        lastName: 'Doe',
+        name: 'John Doe',
       };
 
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(userData)
         .expect('Content-Type', /json/);
 
@@ -126,14 +119,11 @@ describe.skip('Auth Controller Integration Tests', () => {
           email: 'testuser@example.com',
           password: 'Test123!@#', // Default password from factory
         })
-        .expect('Content-Type', /json/);
+        .expect('Content-Type', /json/)
+        .expect(200);
 
-      expect([200, 201]).toContain(response.status);
-
-      if (response.status === 200 || response.status === 201) {
-        expect(response.body).toHaveProperty('accessToken');
-        expect(response.body).toHaveProperty('user');
-      }
+      expect(response.body).toHaveProperty('accessToken');
+      expect(response.body).toHaveProperty('user');
     });
 
     it('should reject login with invalid password', async () => {
@@ -167,29 +157,19 @@ describe.skip('Auth Controller Integration Tests', () => {
 
   describe('GET /api/auth/me', () => {
     it('should return user data with valid token', async () => {
-      // This test requires authentication middleware to be properly set up
-      // and a way to generate valid tokens for testing
-
-      // Create user and login to get token
       const user = await factory.createUser({
         email: 'testuser@example.com',
       });
+      const token = generateAccessToken({ userId: user.id, role: user.role, email: user.email });
 
-      const loginResponse = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'testuser@example.com',
-          password: 'Test123!@#',
-        });
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${token}`)
+        .expect('Content-Type', /json/)
+        .expect(200);
 
-      if (loginResponse.body.accessToken) {
-        const response = await request(app)
-          .get('/api/auth/me')
-          .set('Authorization', `Bearer ${loginResponse.body.accessToken}`)
-          .expect('Content-Type', /json/);
-
-        expect([200, 201]).toContain(response.status);
-      }
+      expect(response.body).toHaveProperty('user');
+      expect(response.body.user).toHaveProperty('email', user.email);
     });
 
     it('should reject request without token', async () => {

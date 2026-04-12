@@ -11,6 +11,7 @@ import { NotificationCenter } from './NotificationCenter';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 
 export function Header() {
   const navigate = useNavigate();
@@ -18,7 +19,9 @@ export function Header() {
   const { user } = useAuth();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isSearchSheetOpen, setIsSearchSheetOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
   const cartCount = getCartCount();
   const userEmail = user?.email || 'guest@example.com';
 
@@ -26,6 +29,16 @@ export function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = mobileSearchQuery.trim();
+    if (trimmed) {
+      navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+      setMobileSearchQuery('');
+      setIsSearchSheetOpen(false);
     }
   };
 
@@ -39,7 +52,7 @@ export function Header() {
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-primary-foreground">TCG</span>
                 </div>
-                <h2 className="hidden sm:block">TCG Marketplace</h2>
+                <h2 className="hidden sm:block">TCG Dojo</h2>
               </Link>
             </div>
 
@@ -56,6 +69,16 @@ export function Header() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsSearchSheetOpen(true)}
+                aria-label="Open search"
+              >
+                <Search className="w-5 h-5" />
+              </Button>
               <ThemeToggle />
 
               {!user && (
@@ -122,6 +145,27 @@ export function Header() {
       {isAccountMenuOpen && (
         <AccountMenu onClose={() => setIsAccountMenuOpen(false)} userEmail={userEmail} />
       )}
+
+      <Sheet open={isSearchSheetOpen} onOpenChange={setIsSearchSheetOpen}>
+        <SheetContent side="top" className="h-auto pt-6">
+          <SheetHeader>
+            <SheetTitle>Search</SheetTitle>
+          </SheetHeader>
+          <form onSubmit={handleMobileSearch} className="relative mt-4 pb-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Search for a product"
+              className="pl-10"
+              value={mobileSearchQuery}
+              onChange={e => setMobileSearchQuery(e.target.value)}
+              autoFocus
+            />
+            <Button type="submit" className="w-full mt-3">
+              Search
+            </Button>
+          </form>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

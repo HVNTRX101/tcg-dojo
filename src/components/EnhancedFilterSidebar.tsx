@@ -19,8 +19,8 @@ interface EnhancedFilterSidebarProps {
 
 const filterSections: FilterSection[] = [
   {
-    title: 'Direct by TCGPlayer',
-    items: ['Direct by TCGPlayer'],
+    title: 'Direct by TCG Dojo',
+    items: ['Direct by TCG Dojo'],
   },
   {
     title: 'Shop',
@@ -79,7 +79,7 @@ const filterSections: FilterSection[] = [
 
 export default function EnhancedFilterSidebar({ onClose }: EnhancedFilterSidebarProps) {
   const [expandedSections, setExpandedSections] = useState<string[]>([
-    'Direct by TCGPlayer',
+    'Direct by TCG Dojo',
     'Shop',
     'Product Line',
     'Set',

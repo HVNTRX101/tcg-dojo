@@ -2,38 +2,40 @@ import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { ChevronRight } from 'lucide-react';
-import { Header } from '../components/Header';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, useNavigate } from 'react-router-dom';
+import { generateCardPlaceholder } from '../utils/cardPlaceholder';
+
+function placeholderGameName(displayName: string): string {
+  if (displayName === 'Pokémon') return 'Pokemon';
+  if (displayName === 'One Piece Card Game') return 'One Piece';
+  if (displayName === 'Digimon Card Game') return 'Digimon';
+  return displayName;
+}
 
 const gameData = {
   magic: {
     name: 'Magic: The Gathering',
-    bannerImage: 'https://images.unsplash.com/photo-1644007824843-37e9069834bd?w=1200',
     color: 'from-purple-600 to-blue-600',
     sets: [
       {
         name: 'Foundations',
         code: 'FDN',
         releaseDate: 'November 2024',
-        image: 'https://images.unsplash.com/photo-1644007824843-37e9069834bd?w=300',
       },
       {
         name: 'Duskmourn',
         code: 'DSK',
         releaseDate: 'September 2024',
-        image: 'https://images.unsplash.com/photo-1644007824843-37e9069834bd?w=300',
       },
       {
         name: 'Bloomburrow',
         code: 'BLB',
         releaseDate: 'August 2024',
-        image: 'https://images.unsplash.com/photo-1644007824843-37e9069834bd?w=300',
       },
       {
         name: 'Modern Horizons 3',
         code: 'MH3',
         releaseDate: 'June 2024',
-        image: 'https://images.unsplash.com/photo-1644007824843-37e9069834bd?w=300',
       },
     ],
     decks: [
@@ -62,32 +64,27 @@ const gameData = {
   },
   yugioh: {
     name: 'Yu-Gi-Oh!',
-    bannerImage: 'https://images.unsplash.com/photo-1674106890436-368ce68342f1?w=1200',
     color: 'from-red-600 to-purple-600',
     sets: [
       {
         name: 'Rarity Collection 2',
         code: 'RC02',
         releaseDate: 'November 2024',
-        image: 'https://images.unsplash.com/photo-1674106890436-368ce68342f1?w=300',
       },
       {
         name: 'Legacy of Destruction',
         code: 'LEDE',
         releaseDate: 'October 2024',
-        image: 'https://images.unsplash.com/photo-1674106890436-368ce68342f1?w=300',
       },
       {
         name: 'The Infinite Forbidden',
         code: 'INFO',
         releaseDate: 'July 2024',
-        image: 'https://images.unsplash.com/photo-1674106890436-368ce68342f1?w=300',
       },
       {
         name: 'Battles of Legend',
         code: 'BOEL',
         releaseDate: 'June 2024',
-        image: 'https://images.unsplash.com/photo-1674106890436-368ce68342f1?w=300',
       },
     ],
     decks: [
@@ -116,32 +113,27 @@ const gameData = {
   },
   pokemon: {
     name: 'Pokémon',
-    bannerImage: 'https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?w=1200',
     color: 'from-blue-500 to-yellow-400',
     sets: [
       {
         name: 'Surging Sparks',
         code: 'SSP',
         releaseDate: 'November 2024',
-        image: 'https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?w=300',
       },
       {
         name: 'Stellar Crown',
         code: 'SCR',
         releaseDate: 'September 2024',
-        image: 'https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?w=300',
       },
       {
         name: 'Shrouded Fable',
         code: 'SFA',
         releaseDate: 'August 2024',
-        image: 'https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?w=300',
       },
       {
         name: 'Twilight Masquerade',
         code: 'TWM',
         releaseDate: 'May 2024',
-        image: 'https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?w=300',
       },
     ],
     decks: [
@@ -170,26 +162,22 @@ const gameData = {
   },
   lorcana: {
     name: 'Disney Lorcana',
-    bannerImage: 'https://images.unsplash.com/photo-1542393545-10f5cde2c810?w=1200',
     color: 'from-indigo-600 to-pink-500',
     sets: [
       {
         name: 'Shimmering Skies',
         code: 'SKY',
         releaseDate: 'November 2024',
-        image: 'https://images.unsplash.com/photo-1542393545-10f5cde2c810?w=300',
       },
       {
         name: 'Azurite Sea',
         code: 'AZS',
         releaseDate: 'September 2024',
-        image: 'https://images.unsplash.com/photo-1542393545-10f5cde2c810?w=300',
       },
       {
         name: 'Into the Inklands',
         code: 'ITI',
         releaseDate: 'June 2024',
-        image: 'https://images.unsplash.com/photo-1542393545-10f5cde2c810?w=300',
       },
     ],
     decks: [
@@ -204,20 +192,17 @@ const gameData = {
   },
   onepiece: {
     name: 'One Piece Card Game',
-    bannerImage: 'https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=1200',
     color: 'from-orange-500 to-red-600',
     sets: [
       {
         name: 'Pillars of Strength',
         code: 'OP-05',
         releaseDate: 'October 2024',
-        image: 'https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=300',
       },
       {
         name: 'Awakening of the New Era',
         code: 'OP-04',
         releaseDate: 'August 2024',
-        image: 'https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=300',
       },
     ],
     decks: [
@@ -228,20 +213,17 @@ const gameData = {
   },
   digimon: {
     name: 'Digimon Card Game',
-    bannerImage: 'https://images.unsplash.com/photo-1613047630550-f340fe5f96fb?w=1200',
     color: 'from-cyan-500 to-blue-700',
     sets: [
       {
         name: 'Across Time',
         code: 'BT-15',
         releaseDate: 'November 2024',
-        image: 'https://images.unsplash.com/photo-1613047630550-f340fe5f96fb?w=300',
       },
       {
         name: 'Beginning Observer',
         code: 'BT-14',
         releaseDate: 'September 2024',
-        image: 'https://images.unsplash.com/photo-1613047630550-f340fe5f96fb?w=300',
       },
     ],
     decks: [
@@ -255,6 +237,7 @@ const gameData = {
 export default function GameLandingPage() {
   const { game } = useParams<{ game: string }>();
   const data = game ? gameData[game as keyof typeof gameData] : undefined;
+  const navigate = useNavigate();
 
   // Redirect to home if game is invalid
   if (!game || !data) {
@@ -263,8 +246,7 @@ export default function GameLandingPage() {
 
   return (
     <>
-      <Header />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-background">
         {/* Hero Banner */}
         <div className={`bg-gradient-to-r ${data.color} text-white py-16 px-6`}>
           <div className="max-w-7xl mx-auto">
@@ -279,8 +261,12 @@ export default function GameLandingPage() {
           {/* Latest Sets */}
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl">Latest Sets</h2>
-              <Button variant="link" className="text-blue-600">
+              <h2 className="text-2xl text-foreground">Latest Sets</h2>
+              <Button
+                variant="link"
+                className="text-blue-600 dark:text-blue-400"
+                onClick={() => navigate(`/marketplace?game=${game}`)}
+              >
                 View All Sets <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -291,15 +277,18 @@ export default function GameLandingPage() {
                   className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                 >
                   <ImageWithFallback
-                    src={set.image}
+                    src={generateCardPlaceholder(set.name, placeholderGameName(data.name), 'Set')}
                     alt={set.name}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="mb-1">{set.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2">{set.code}</p>
-                    <p className="text-sm text-gray-500">{set.releaseDate}</p>
-                    <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
+                    <h3 className="mb-1 text-foreground">{set.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">{set.code}</p>
+                    <p className="text-sm text-muted-foreground">{set.releaseDate}</p>
+                    <Button
+                      className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+                      onClick={() => navigate(`/marketplace?game=${game}&set=${set.code}`)}
+                    >
                       Browse Set
                     </Button>
                   </div>
@@ -310,14 +299,19 @@ export default function GameLandingPage() {
 
           {/* Featured Banner */}
           <section>
-            <div className="relative rounded-lg overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 p-8 md:p-12 text-white">
+            <div className="relative rounded-lg overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 p-8 md:p-12 text-white shadow-lg">
+              <div className="absolute inset-0 bg-black/20 dark:bg-black/35 pointer-events-none" />
               <div className="relative z-10 max-w-2xl">
-                <h2 className="text-3xl mb-4">New Set Just Released!</h2>
-                <p className="text-lg mb-6 text-white/90">
+                <h2 className="text-3xl mb-4 text-white drop-shadow-sm">New Set Just Released!</h2>
+                <p className="text-lg mb-6 text-white drop-shadow-sm">
                   Get your hands on the latest {data.sets[0].name} set. Pre-order now and secure
                   your booster boxes!
                 </p>
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+                <Button
+                  size="lg"
+                  className="bg-white text-blue-600 hover:bg-gray-100 shadow-md"
+                  onClick={() => navigate(`/marketplace?game=${game}&set=${data.sets[0].code}`)}
+                >
                   Order Now
                 </Button>
               </div>
@@ -327,17 +321,21 @@ export default function GameLandingPage() {
           {/* Decks */}
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl">Decks</h2>
-              <Button variant="link" className="text-blue-600">
+              <h2 className="text-2xl text-foreground">Decks</h2>
+              <Button
+                variant="link"
+                className="text-blue-600 dark:text-blue-400"
+                onClick={() => navigate(`/marketplace?game=${game}`)}
+              >
                 View All Decks <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {data.decks.map((deck, index) => (
                 <Card key={index} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                  <h3 className="mb-2">{deck.name}</h3>
-                  <p className="text-2xl text-blue-600">{deck.count}</p>
-                  <p className="text-sm text-gray-600">Decks Available</p>
+                  <h3 className="mb-2 text-foreground">{deck.name}</h3>
+                  <p className="text-2xl text-blue-600 dark:text-blue-400">{deck.count}</p>
+                  <p className="text-sm text-muted-foreground">Decks Available</p>
                 </Card>
               ))}
             </div>
@@ -346,16 +344,20 @@ export default function GameLandingPage() {
           {/* Articles */}
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl">Latest Articles</h2>
-              <Button variant="link" className="text-blue-600">
+              <h2 className="text-2xl text-foreground">Latest Articles</h2>
+              <Button
+                variant="link"
+                className="text-blue-600 dark:text-blue-400"
+                onClick={() => navigate(`/faq`)}
+              >
                 View All Articles <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {data.articles.map((article, index) => (
                 <Card key={index} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                  <h3 className="mb-2 line-clamp-2">{article.title}</h3>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
+                  <h3 className="mb-2 line-clamp-2 text-foreground">{article.title}</h3>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>{article.author}</span>
                     <span>{article.date}</span>
                   </div>

@@ -3,11 +3,11 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { AlertCircle, Sparkles } from 'lucide-react';
 import { useLogin } from '../hooks/useAuth';
 import { toast } from 'sonner';
-import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '../components/ui/alert';
+import { errorMessageFromUnknown } from '../utils/errorMessage';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -19,7 +19,8 @@ export default function SignInPage() {
   const login = useLogin();
 
   // Get the page user tried to access before being redirected to signin
-  const from = (location.state as any)?.from?.pathname || '/';
+  const locationState = location.state as { from?: { pathname: string } } | null | undefined;
+  const from = locationState?.from?.pathname ?? '/';
 
   const validateForm = () => {
     if (!email || !password) {
@@ -55,11 +56,11 @@ export default function SignInPage() {
       });
       // Redirect to the page they tried to access, or home
       navigate(from, { replace: true });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Invalid email or password. Please try again.';
+    } catch (error: unknown) {
+      const errorMessage = errorMessageFromUnknown(
+        error,
+        'Invalid email or password. Please try again.'
+      );
       setValidationError(errorMessage);
       toast.error('Sign in failed', {
         description: errorMessage,
@@ -71,13 +72,12 @@ export default function SignInPage() {
     <div className="min-h-screen flex">
       {/* Left Sidebar with Illustration */}
       <div className="hidden lg:flex lg:w-1/3 bg-gradient-to-br from-blue-500 to-purple-600 p-12 items-center justify-center">
-        <div className="text-white text-center">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1631083354486-01e4f4a7d1d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmVhc3VyZSUyMHZhdWx0JTIwa2V5JTIwaWxsdXN0cmF0aW9ufGVufDF8fHx8MTc2MDYwMDA4NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-            alt="Treasure vault"
-            className="w-full max-w-md mx-auto mb-8 rounded-lg"
-            lazy={false}
-          />
+        <div className="text-white text-center max-w-md mx-auto">
+          <div className="flex justify-center mb-8">
+            <div className="rounded-2xl bg-white/15 p-10 backdrop-blur-sm border border-white/20">
+              <Sparkles className="w-24 h-24 text-white/90 mx-auto" aria-hidden />
+            </div>
+          </div>
           <h2 className="text-2xl mb-4">Welcome Back!</h2>
           <p className="text-blue-100">
             Sign in to access your collection, track your cards, and discover new treasures.
@@ -86,11 +86,13 @@ export default function SignInPage() {
       </div>
 
       {/* Right Side - Sign In Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 dark:bg-background">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="bg-white dark:bg-card rounded-lg shadow-lg p-8">
             <h1 className="text-3xl mb-2">Sign In</h1>
-            <p className="text-gray-600 mb-8">Welcome back! Please sign in to your account.</p>
+            <p className="text-gray-600 dark:text-muted-foreground mb-8">
+              Welcome back! Please sign in to your account.
+            </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {validationError && (
@@ -101,7 +103,9 @@ export default function SignInPage() {
               )}
 
               <div>
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-gray-900 dark:text-gray-100 font-medium">
+                  Email Address
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -115,7 +119,9 @@ export default function SignInPage() {
               </div>
 
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-gray-900 dark:text-gray-100 font-medium">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"

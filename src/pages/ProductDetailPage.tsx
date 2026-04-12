@@ -15,9 +15,10 @@ import { ShoppingCart, Star, ArrowLeft } from 'lucide-react';
 import { useCart } from '../components/CartContext';
 import { PriceHistoryChart } from '../components/PriceHistoryChart';
 import { ProductCard } from '../components/ProductCard';
-import { Card } from '../types/product.types';
+import { MOCK_CARDS } from '../mocks/products';
+import { generateCardPlaceholder } from '../utils/cardPlaceholder';
 import { motion } from 'motion/react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface Listing {
   id: string;
@@ -120,14 +121,14 @@ const relatedProducts = [
     set: 'MEW2: Mega Evolution',
     cardNumber: '001',
     price: 52.99,
-    image: 'https://images.unsplash.com/photo-1664997296099-5a0b63ab0196?w=300',
+    image: generateCardPlaceholder('Mega Evolution 2 Pack Blister', 'Pokemon', 'Rare'),
     rarity: 'Rare' as const,
     condition: 'Near Mint' as const,
     finish: 'Normal' as const,
     seller: 'CardKingdom',
     sellerRating: 4.9,
     quantity: 10,
-    game: 'Pokémon',
+    game: 'Pokemon',
   },
 ];
 
@@ -135,22 +136,8 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Mock product data - in real app, this would come from API
-  const mockProduct: Card = {
-    id: id || '1',
-    name: 'Lightning Bolt',
-    set: 'Alpha Edition',
-    cardNumber: '161',
-    rarity: 'Common',
-    price: 299.99,
-    condition: 'Near Mint',
-    finish: 'Normal',
-    image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=400&fit=crop',
-    seller: 'CardVault Pro',
-    sellerRating: 4.9,
-    quantity: 1,
-    game: 'Magic: The Gathering',
-  };
+  // Look up product from mock data by ID
+  const mockProduct = MOCK_CARDS.find(c => c.id === id) || MOCK_CARDS[0];
 
   const [selectedCondition, setSelectedCondition] = useState(mockProduct.condition);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
@@ -185,15 +172,19 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = (listing: Listing) => {
-    addToCart({
-      id: listing.id,
-      name: productInfo.name,
-      price: listing.price + listing.shipping,
-      image: productInfo.image,
-      seller: listing.seller,
-      condition: listing.condition,
-      quantity: 1,
-    });
+    addToCart(
+      {
+        ...mockProduct,
+        id: listing.id,
+        name: productInfo.name,
+        price: listing.price + listing.shipping,
+        image: productInfo.image,
+        seller: listing.seller,
+        condition: listing.condition as (typeof mockProduct)['condition'],
+        quantity: Math.min(listing.quantity, mockProduct.quantity),
+      },
+      1
+    );
     toast.success('Added to cart!');
   };
 
@@ -308,7 +299,12 @@ export default function ProductDetailPage() {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm mb-2">Condition</label>
-                    <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+                    <Select
+                      value={selectedCondition}
+                      onValueChange={value =>
+                        setSelectedCondition(value as (typeof mockProduct)['condition'])
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -333,7 +329,13 @@ export default function ProductDetailPage() {
                     </Select>
                   </div>
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 dark:bg-neon-pink dark:hover:bg-neon-pink/90">
+                <Button
+                  className="w-full bg-primary hover:bg-primary/90 dark:bg-neon-pink dark:hover:bg-neon-pink/90"
+                  onClick={() => {
+                    addToCart(mockProduct, 1);
+                    toast.success(`${mockProduct.name} added to cart!`);
+                  }}
+                >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Add to Cart - ${productInfo.marketPrice.toFixed(2)}
                 </Button>

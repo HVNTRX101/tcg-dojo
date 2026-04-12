@@ -131,7 +131,9 @@ export default function CollectionTrackerPage() {
                       <Checkbox
                         id="have"
                         checked={haveChecked}
-                        onCheckedChange={checked => setHaveChecked(checked as boolean)}
+                        onCheckedChange={(checked: boolean | 'indeterminate') =>
+                          setHaveChecked(checked === true)
+                        }
                       />
                       <label htmlFor="have" className="text-sm">
                         HAVE
@@ -141,7 +143,9 @@ export default function CollectionTrackerPage() {
                       <Checkbox
                         id="want"
                         checked={wantChecked}
-                        onCheckedChange={checked => setWantChecked(checked as boolean)}
+                        onCheckedChange={(checked: boolean | 'indeterminate') =>
+                          setWantChecked(checked === true)
+                        }
                       />
                       <label htmlFor="want" className="text-sm">
                         WANT
@@ -151,7 +155,9 @@ export default function CollectionTrackerPage() {
                       <Checkbox
                         id="trade"
                         checked={tradeChecked}
-                        onCheckedChange={checked => setTradeChecked(checked as boolean)}
+                        onCheckedChange={(checked: boolean | 'indeterminate') =>
+                          setTradeChecked(checked === true)
+                        }
                       />
                       <label htmlFor="trade" className="text-sm">
                         TRADE
@@ -228,7 +234,7 @@ export default function CollectionTrackerPage() {
                       <tr>
                         <td colSpan={8} className="p-12 text-center text-gray-500">
                           <div className="space-y-4">
-                            <p>Welcome to the TCGplayer.com Collection Tracker!</p>
+                            <p>Welcome to the TCG Dojo Collection Tracker!</p>
                             <ul className="text-left max-w-2xl mx-auto space-y-2">
                               <li>• Enter and store your entire gaming collection online</li>
                               <li>

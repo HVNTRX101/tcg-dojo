@@ -1,13 +1,13 @@
-import React from 'react';
 import { X, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface AccountMenuProps {
   onClose: () => void;
   userEmail: string;
+  onSignOut?: () => void;
 }
 
-export function AccountMenu({ onClose, userEmail }: AccountMenuProps) {
+export function AccountMenu({ onClose, userEmail, onSignOut }: AccountMenuProps) {
   return (
     <div className="fixed inset-0 z-50">
       {/* Backdrop */}
@@ -64,29 +64,29 @@ export function AccountMenu({ onClose, userEmail }: AccountMenuProps) {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Manage Payment Methods
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
-                  TCGplayer Subscription
-                </a>
+                <button className="text-gray-700 hover:text-blue-600 text-left">
+                  TCG Dojo Subscription
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Manage Addresses
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Store Credit
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Email Preferences
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -96,24 +96,22 @@ export function AccountMenu({ onClose, userEmail }: AccountMenuProps) {
             <h3 className="mb-4">Sell</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
-                  Account
-                </a>
+                <button className="text-gray-700 hover:text-blue-600 text-left">Account</button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Seller Portal
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Marketplace Seller Resources
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Pro Seller Resources
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -123,24 +121,22 @@ export function AccountMenu({ onClose, userEmail }: AccountMenuProps) {
             <h3 className="mb-4">Help</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Contact Customer Support
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
-                  Help Center
-                </a>
+                <button className="text-gray-700 hover:text-blue-600 text-left">Help Center</button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Refund and Return Policy
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
-                  TCGplayer Safeguard
-                </a>
+                <button className="text-gray-700 hover:text-blue-600 text-left">
+                  TCG Dojo Buyer Protection
+                </button>
               </li>
             </ul>
           </div>
@@ -150,24 +146,27 @@ export function AccountMenu({ onClose, userEmail }: AccountMenuProps) {
             <h3 className="mb-4">Gift Cards</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Buy a Gift Card
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-blue-600">
+                <button className="text-gray-700 hover:text-blue-600 text-left">
                   Redeem a Gift Card
-                </a>
+                </button>
               </li>
             </ul>
           </div>
 
           {/* Sign Out */}
           <div className="pt-4 border-t">
-            <a href="#" className="text-gray-700 hover:text-blue-600 flex items-center gap-2">
+            <button
+              onClick={onSignOut}
+              className="text-gray-700 hover:text-blue-600 flex items-center gap-2"
+            >
               <ExternalLink className="w-4 h-4" />
               Sign Out
-            </a>
+            </button>
           </div>
         </div>
       </div>

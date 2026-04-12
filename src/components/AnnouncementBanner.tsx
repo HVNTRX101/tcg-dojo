@@ -1,10 +1,19 @@
-import React from 'react';
 import { X } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 
+const BANNER_KEY = 'tcg-banner-dismissed';
+
 export function AnnouncementBanner() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() => {
+    return localStorage.getItem(BANNER_KEY) !== '1';
+  });
+
+  const handleDismiss = () => {
+    localStorage.setItem(BANNER_KEY, '1');
+    setIsVisible(false);
+  };
 
   return (
     <AnimatePresence>
@@ -19,14 +28,14 @@ export function AnnouncementBanner() {
           <p className="text-sm">
             <span>Breaking news!</span> New Product Announcements And Card Reveals From Disney
             Lorcana -{' '}
-            <a href="#" className="underline hover:no-underline">
+            <Link to="/games/lorcana" className="underline hover:no-underline">
               Read All About It!
-            </a>
+            </Link>
           </p>
           <motion.button
             whileHover={{ scale: 1.1, rotate: 90 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setIsVisible(false)}
+            onClick={handleDismiss}
             className="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-70"
             aria-label="Close banner"
           >

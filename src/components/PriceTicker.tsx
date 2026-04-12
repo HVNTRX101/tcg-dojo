@@ -7,14 +7,19 @@ interface PriceTickerProps {
   cards: Card[];
 }
 
-// Generate mock price change data for cards
+// Generate mock price change data for cards with varied results
 const generatePriceChange = (card: Card): { change: number; isPositive: boolean } => {
-  // Use card price to generate consistent random-like changes
-  const seed = card.price * 100;
-  const change = (((seed % 20) - 10) / 10) * 15; // Range: -15% to +15%
+  // Use card name + price to produce a varied hash-like seed
+  let hash = 0;
+  for (let i = 0; i < card.name.length; i++) {
+    hash = (hash << 5) - hash + card.name.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+  const seed = Math.abs(hash + Math.round(card.price * 7));
+  const raw = ((seed % 300) - 150) / 10; // Range: -15.0 to +15.0
   return {
-    change: Math.abs(change),
-    isPositive: change >= 0,
+    change: Math.abs(raw),
+    isPositive: raw >= 0,
   };
 };
 
